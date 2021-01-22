@@ -9,6 +9,8 @@ bool USE_FIRESTORE_EMULATOR = false;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+
+  /// don't delete, it's for a friend
   /* if (USE_FIRESTORE_EMULATOR) {
     FirebaseFirestore.instance.settings = Settings(
         host: 'localhost:8080', sslEnabled: false, persistenceEnabled: false);
@@ -59,10 +61,18 @@ class _MainViewState extends State<MainView> {
                     'Dernière mise à jour: ${DateTime.now()}',
                     style: Theme.of(context).textTheme.caption,
                   );
-                },
+                }
               )
             ],
           ),
+          actions: [
+            FlatButton(
+                onPressed: () {
+                  var newData = { 'name' : " IT JUST WORKS "};
+                  FirebaseFirestore.instance.collection("Data").add(newData);
+                },
+                child: Icon(Icons.add))
+          ],
         ),
         body: StreamBuilder<QuerySnapshot>(
           stream: query.snapshots(),
@@ -86,7 +96,12 @@ class _MainViewState extends State<MainView> {
               itemBuilder: (context, index) => DataCard(querySnapshot.docs[index]),
             );
           },
-        ));
+        ),
+    );
+  }
+
+  void addNewData() {
+
   }
 }
 
@@ -95,7 +110,7 @@ class DataCard extends StatelessWidget {
 
   final DocumentSnapshot snapshot;
 
-  /// Initialize a [Move] instance with a given [DocumentSnapshot].
+  /// Initialize a [data] instance with a given [DocumentSnapshot].
   DataCard(this.snapshot);
 
   /// Returns the [DocumentSnapshot] data as a a [Map].
