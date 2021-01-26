@@ -1,25 +1,22 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:iter/views/mobileMainPage.dart';
+import 'package:iter/views/webMainPage.dart';
 
-/// Requires that a Firestore emulator is running locally.
-/// See https://firebase.flutter.dev/docs/firestore/usage#emulator-usage
-bool USE_FIRESTORE_EMULATOR = false;
+/// TO RUN THE FIREBASE DATABASE EXAMPLE, GO TO LINE 42
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
 
-  /// don't delete, it's for a friend
-  /* if (USE_FIRESTORE_EMULATOR) {
-    FirebaseFirestore.instance.settings = Settings(
-        host: 'localhost:8080', sslEnabled: false, persistenceEnabled: false);
-  } */
   runApp(MyApp());
 }
 
 
 class MyApp extends StatelessWidget {
+
   MaterialApp withMaterialApp(Widget body) {
     return MaterialApp(
       title: 'Test BDD',
@@ -32,7 +29,25 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return withMaterialApp(Center(child: MainView()));
+    return withMaterialApp(
+        Center(
+            child: verifyWebDevice() ? WebMainPage() : MobileMainPage(),
+            /// if you want to switch to the example, replace the previous line by the next one.
+            // child: MainView();
+        )
+    );
+  }
+
+  bool verifyWebDevice() {
+    try{
+      if(Platform.isAndroid||Platform.isIOS) {
+        return false;
+      } else {
+        return true;
+      }
+    } catch(e){
+      return true;
+    }
   }
 }
 
@@ -98,10 +113,6 @@ class _MainViewState extends State<MainView> {
           },
         ),
     );
-  }
-
-  void addNewData() {
-
   }
 }
 
