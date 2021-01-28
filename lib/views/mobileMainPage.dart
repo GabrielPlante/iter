@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:iter/views/QuizView.dart';
 
 class MobileMainPage extends StatefulWidget {
   @override
@@ -10,7 +11,7 @@ class _MobileMainPageState extends State<MobileMainPage> {
   Widget build(BuildContext context) {
     return Container(
       child: Center(
-        child: Text("Vous êtes sur la version mobile !"),
+        child: QuizView()
       ),
     );
   }

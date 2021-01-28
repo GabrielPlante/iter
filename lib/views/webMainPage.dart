@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:iter/models/quiz.dart';
+import 'package:iter/views/QuizView.dart';
 import 'package:iter/services/databaseService.dart';
 
 class WebMainPage extends StatefulWidget {
@@ -24,7 +25,7 @@ class _WebMainPageState extends State<WebMainPage> {
       ListView.builder(
         itemCount: quizs.length,
         itemBuilder: (context, index) {
-          return Text(quizs[index].quizName);
+          return QuizView(quiz: quizs[index]);
         })
     );
   }
