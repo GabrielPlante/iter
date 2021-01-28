@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:iter/models/quiz.dart';
 import 'package:iter/services/databaseService.dart';
+import 'package:iter/views/components/quizCardComponent.dart';
 
 class WebMainPage extends StatefulWidget {
   @override
-  _WebMainPageState createState() => _WebMainPageState();
+  WebMainPageState createState() => WebMainPageState();
 }
 
-class _WebMainPageState extends State<WebMainPage> {
+class WebMainPageState extends State<WebMainPage> {
   final DatabaseService _databaseService = DatabaseService();
   List<Quiz> quizs = [];
+  String quizChosen = '';
 
   @override
   void initState() {
@@ -24,7 +26,7 @@ class _WebMainPageState extends State<WebMainPage> {
       ListView.builder(
         itemCount: quizs.length,
         itemBuilder: (context, index) {
-          return Text(quizs[index].quizName);
+          return QuizCardComponent(quiz: quizs[index],quizJoined : quizs[index].id == quizChosen, parent: this );
         })
     );
   }
@@ -36,5 +38,20 @@ class _WebMainPageState extends State<WebMainPage> {
       quizs = result;
     });
 
+  }
+
+  void updateQuizChoice(String quizId) async {
+    if(quizChosen == quizId){
+      await _databaseService.removePlayer(quizId);
+      setState(() {
+        quizChosen = '';
+      });
+    } else {
+      if(quizChosen != '') await _databaseService.removePlayer(quizChosen);
+      await _databaseService.addPlayer(quizId);
+      setState(() {
+        quizChosen = quizId;
+      });
+    }
   }
 }
