@@ -42,12 +42,20 @@ class DatabaseService {
 
       List<Question> questions = await getQuestionsForQuiz(questionsOfQuizCollection);
 
-      Quiz quiz = Quiz(document['quizName'], questions);
+      Quiz quiz = Quiz(document['id'], document['quizName'], questions,document['numberOfPlayers']);
       quizs.add(quiz);
 
     }
 
     return quizs;
+  }
+
+  Future addPlayer(String quizId) async {
+    await quizCollection.doc(quizId).update( { 'numberOfPlayers' : FieldValue.increment(1) } );
+  }
+
+  Future removePlayer(String quizId) async {
+    await quizCollection.doc(quizId).update( { 'numberOfPlayers' : FieldValue.increment(-1) } );
   }
 
 }
