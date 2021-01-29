@@ -53,6 +53,7 @@ class _QuizCardComponentState extends State<QuizCardComponent> {
                     var userDocument = snapshot.data;
                     if(userDocument["numberOfPlayers"] >= 2 && widget.quizJoined){
                       SchedulerBinding.instance.addPostFrameCallback((_) {
+                        Navigator.of(context).pop();
                         Navigator.push(context, MaterialPageRoute(builder: (context) => QuizView(quiz: widget.quiz)));
                       });
                     }
