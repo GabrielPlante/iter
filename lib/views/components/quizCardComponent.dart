@@ -51,13 +51,13 @@ class _QuizCardComponentState extends State<QuizCardComponent> {
                       return Text("Loading");
                     }
                     var userDocument = snapshot.data;
-                    if(userDocument["numberOfPlayers"] >= 2 && widget.quizJoined){
+                    if(userDocument["waitingPlayers"].length >= 2 && widget.quizJoined){
                       SchedulerBinding.instance.addPostFrameCallback((_) {
                         Navigator.of(context).pop();
                         Navigator.push(context, MaterialPageRoute(builder: (context) => QuizView(quiz: widget.quiz)));
                       });
                     }
-                    return Text("Nombre de joueurs : ${userDocument["numberOfPlayers"]} / 2");
+                    return Text("Nombre de joueurs : ${userDocument["waitingPlayers"].length} / 2");
                   }
               ),
             ],

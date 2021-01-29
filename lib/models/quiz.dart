@@ -4,13 +4,13 @@ class Quiz {
   String id;
   String quizName;
   List<Question> questions;
-  int numberOfPlayers;
+  List<String> waitingPlayers;
 
-  Quiz(String id, String quizName, List<Question> questions, int numberOfPlayers) {
+  Quiz(String id, String quizName, List<Question> questions, List<String> waitingPlayers) {
     this.id = id;
     this.quizName = quizName;
     this.questions = questions;
-    this.numberOfPlayers = numberOfPlayers;
+    this.waitingPlayers = waitingPlayers;
   }
 
 }

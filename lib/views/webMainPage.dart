@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:iter/models/quiz.dart';
-import 'package:iter/views/QuizView.dart';
 import 'package:iter/services/databaseService.dart';
 import 'package:iter/views/components/quizCardComponent.dart';
 
 class WebMainPage extends StatefulWidget {
+  static String userId = "Franck";
   @override
   WebMainPageState createState() => WebMainPageState();
 }
@@ -44,13 +44,13 @@ class WebMainPageState extends State<WebMainPage> {
 
   void updateQuizChoice(String quizId) async {
     if(quizChosen == quizId){
-      await _databaseService.removePlayer(quizId);
+      await _databaseService.removePlayer(quizId, WebMainPage.userId);
       setState(() {
         quizChosen = '';
       });
     } else {
-      if(quizChosen != '') await _databaseService.removePlayer(quizChosen);
-      await _databaseService.addPlayer(quizId);
+      if(quizChosen != '') await _databaseService.removePlayer(quizChosen, WebMainPage.userId);
+      await _databaseService.addPlayer(quizId, WebMainPage.userId);
       setState(() {
         quizChosen = quizId;
       });

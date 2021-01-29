@@ -113,7 +113,7 @@ class QuizComponent extends StatelessWidget {
                     ),
                     hoverColor:isSelectedItem[0] && question.correctAnswer == question.answers[0] ? Colors.green : isSelectedItem[0] ? Colors.red : Colors.blue,
                     child:
-                    Text(question.answers[0], style: TextStyle(fontSize: 50)),
+                    Text(question.answers[0], style: TextStyle(fontSize: 20)),
                   ),
                   SizedBox(width: 25),
                   FlatButton(
@@ -127,7 +127,7 @@ class QuizComponent extends StatelessWidget {
                     hoverColor:isSelectedItem[1] && question.correctAnswer == question.answers[1] ? Colors.green : isSelectedItem[1] ? Colors.red : Colors.blue,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15)),
-                    child: Text(question.answers[1], style: TextStyle(fontSize: 50)),
+                    child: Text(question.answers[1], style: TextStyle(fontSize: 20)),
                   ),
                 ],
               ),
@@ -147,7 +147,7 @@ class QuizComponent extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15)),
                     child:
-                    Text(question.answers[3], style: TextStyle(fontSize: 50)),
+                    Text(question.answers[3], style: TextStyle(fontSize: 20)),
                   ),
                   SizedBox(width: 25),
                   FlatButton(
@@ -162,7 +162,7 @@ class QuizComponent extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15)),
                     child:
-                    Text(question.answers[2], style: TextStyle(fontSize: 50)),
+                    Text(question.answers[2], style: TextStyle(fontSize: 20)),
                   ),
                 ],
               )
@@ -173,7 +173,7 @@ class QuizComponent extends StatelessWidget {
   }
 
 
-  bool selectedAndVerifyAnswer(String answer, int position) {
+  void selectedAndVerifyAnswer(String answer, int position) {
     parent.setSelected(position);
     if(answer == question.correctAnswer) {
       parent.nextQuestion();
