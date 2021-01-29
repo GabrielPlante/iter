@@ -15,6 +15,14 @@ class MobileMainPageState extends State<MobileMainPage> {
   List<Quiz> quizs = [];
   String quizChosen = '';
 
+  /*@override
+  void dispose() {
+    super.dispose();
+    if (quizChosen != ''){
+        _databaseService.removePlayer(quizChosen);
+      }
+  }*/
+
   @override
   void initState() {
     initQuizs();

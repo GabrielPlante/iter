@@ -8,6 +8,16 @@ import 'package:iter/views/webMainPage.dart';
 /// TO RUN THE FIREBASE DATABASE EXAMPLE, GO TO LINE 42
 
 void main() async {
+  try{
+    if(Platform.isAndroid||Platform.isIOS) {
+      MyApp.isWebDevice = false;
+    } else {
+      MyApp.isWebDevice = true;
+    }
+  } catch(e){
+    MyApp.isWebDevice = true;
+  }
+
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
 
@@ -31,24 +41,14 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return withMaterialApp(
         Center(
-            child: verifyWebDevice() ? WebMainPage() : MobileMainPage(),
+            child: isWebDevice ? WebMainPage() : MobileMainPage(),
             /// if you want to switch to the example, replace the previous line by the next one.
             // child: MainView();
         )
     );
   }
 
-  bool verifyWebDevice() {
-    try{
-      if(Platform.isAndroid||Platform.isIOS) {
-        return false;
-      } else {
-        return true;
-      }
-    } catch(e){
-      return true;
-    }
-  }
+  static bool isWebDevice = false;
 }
 
 class MainView extends StatefulWidget {

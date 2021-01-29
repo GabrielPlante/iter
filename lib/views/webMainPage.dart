@@ -14,6 +14,15 @@ class WebMainPageState extends State<WebMainPage> {
   List<Quiz> quizs = [];
   String quizChosen = '';
 
+  /*@override
+  didChangeAppLifecycleState(AppLifecycleState state) {
+    if(AppLifecycleState.paused == state) {
+      if (quizChosen != ''){
+        _databaseService.removePlayer(quizChosen);
+      }
+    }
+  }*/
+
   @override
   void initState() {
     initQuizs();
@@ -32,7 +41,6 @@ class WebMainPageState extends State<WebMainPage> {
         })
     );
   }
-
 
   void initQuizs() async {
     List<Quiz> result = await  _databaseService.allQuiz;
