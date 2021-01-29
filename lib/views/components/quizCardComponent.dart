@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:iter/models/quiz.dart';
+import 'package:iter/views/QuizView.dart';
 import 'package:iter/views/webMainPage.dart';
 
 class QuizCardComponent extends StatefulWidget {
@@ -49,7 +51,11 @@ class _QuizCardComponentState extends State<QuizCardComponent> {
                       return Text("Loading");
                     }
                     var userDocument = snapshot.data;
-                    if(userDocument["numberOfPlayers"] == 2 && widget.quizJoined){ return Text(" Les joueurs sont prêts, la partie va démarrer..."); }
+                    if(userDocument["numberOfPlayers"] >= 2 && widget.quizJoined){
+                      SchedulerBinding.instance.addPostFrameCallback((_) {
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => QuizView(quiz: widget.quiz)));
+                      });
+                    }
                     return Text("Nombre de joueurs : ${userDocument["numberOfPlayers"]} / 2");
                   }
               ),
