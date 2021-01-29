@@ -30,6 +30,7 @@ class MyApp extends StatelessWidget {
   MaterialApp withMaterialApp(Widget body) {
     return MaterialApp(
       title: 'Test BDD',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData.dark(),
       home: Scaffold(
         body: body,
