@@ -20,6 +20,7 @@ class DatabaseService {
 
     for(DocumentSnapshot doc in questionsQueries.docs){
       List<String> answers =[];
+      print(doc.id);
 
       if(doc['answers'] != null) {
         doc['answers'].forEach((dy) {
@@ -61,6 +62,7 @@ class DatabaseService {
     Map<String,int> scoreByPlayerMap = HashMap();
 
     for(Question question in questions) {
+
       List<bool> avancementByPlayer = [];
       for(int i = 0; i < playersId.length; i++) {
         avancementByPlayer.add(false);

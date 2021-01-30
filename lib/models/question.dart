@@ -8,6 +8,7 @@ class Question {
 
   Question(String id, String questionName, String correctAnswer, List<String> answers){
     if(answers.contains(correctAnswer)) {
+      this.id = id;
       this.questionName = questionName;
       this.correctAnswer = correctAnswer;
       this.answers = answers;
