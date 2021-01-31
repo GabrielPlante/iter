@@ -51,7 +51,7 @@ class _QuizCardComponentForMobileState extends State<QuizCardComponentForMobile>
                       return Text("Loading");
                     }
                     var userDocument = snapshot.data;
-                    if(userDocument["waitingPlayers"].length >= 2 && widget.quizJoined){
+                    if(userDocument["waitingPlayers"].length >= 2 && widget.quizJoined && snapshot.connectionState == ConnectionState.active){
                       SchedulerBinding.instance.addPostFrameCallback((_) {
                         Navigator.of(context).pop();
                         Navigator.push(context, MaterialPageRoute(builder: (context) => QuizView(quiz: widget.quiz)));
