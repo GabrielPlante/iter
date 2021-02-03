@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:iter/models/quiz.dart';
 import 'package:iter/services/databaseService.dart';
-
 import 'components/quizCardComponentForMobile.dart';
-import 'package:iter/views/QuizView.dart';
 
 class MobileMainPage extends StatefulWidget {
+  static String userId = "Amelie";
   @override
   MobileMainPageState createState() => MobileMainPageState();
 }
@@ -52,13 +51,13 @@ class MobileMainPageState extends State<MobileMainPage> {
 
   void updateQuizChoice(String quizId) async {
     if(quizChosen == quizId){
-      await _databaseService.removePlayer(quizId);
+      await _databaseService.removePlayer(quizId, MobileMainPage.userId);
       setState(() {
         quizChosen = '';
       });
     } else {
-      if(quizChosen != '') await _databaseService.removePlayer(quizChosen);
-      await _databaseService.addPlayer(quizId);
+      if(quizChosen != '') await _databaseService.removePlayer(quizChosen, MobileMainPage.userId);
+      await _databaseService.addPlayer(quizId, MobileMainPage.userId);
       setState(() {
         quizChosen = quizId;
       });

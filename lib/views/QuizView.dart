@@ -1,7 +1,14 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:iter/main.dart';
+import 'package:iter/models/game.dart';
 import 'package:iter/models/question.dart';
 import 'package:iter/models/quiz.dart';
+import 'package:iter/services/databaseService.dart';
+import 'package:iter/views/webMainPage.dart';
+
+import 'mobileMainPage.dart';
 
 class QuizView extends StatefulWidget {
   final Quiz quiz;
@@ -14,8 +21,11 @@ class QuizView extends StatefulWidget {
 
 class QuizViewState extends State<QuizView> {
   List<Question> questions = [];
+  Game currentGame;
+  DatabaseService databaseService  = DatabaseService();
   bool finishQuestion = false;
   int index = 0;
+  int indexOfPlayer = 0;
   List<bool> isSelectedItem = [false, false, false, false];
 
   Widget initQuizComponents(int index) {
@@ -26,11 +36,38 @@ class QuizViewState extends State<QuizView> {
   @override
   void initState() {
     questions = widget.quiz.questions;
+    initGame();
     super.initState();
+  }
+
+  void initGame() async {
+    bool isWeb = MyApp().verifyWebDevice();
+    DateTime dateNow = DateTime.now();
+    List<Game> result = await databaseService.allGame;
+    for(Game game in result) {
+      if(isWeb){
+        if(game.playersId.contains(WebMainPage.userId) && dateNow.difference(game.dateOfGame).inMinutes <= 1 ) {
+          setState(() {
+            currentGame = game;
+            indexOfPlayer = currentGame.playersId.indexOf(WebMainPage.userId);
+          });
+        }
+      } else {
+        if(game.playersId.contains(MobileMainPage.userId) &&  dateNow.difference(game.dateOfGame).inMinutes <= 1 ) {
+          setState(() {
+            currentGame = game;
+            indexOfPlayer = currentGame.playersId.indexOf(MobileMainPage.userId);
+          });
+        }
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    if(currentGame == null) return LoadingWidget();
+    /// In order to verify what the actual fuck is going from the database to your models, shit happens my friend. Sometimes I just don't know what is going on so remember, print(wtf) at every line to know which one is fucking with you.
+    //if(currentGame != null) verifyGameByPrintingData();
     return Scaffold(
       appBar: AppBar(title: Text(widget.quiz.quizName),
         actions: [
@@ -57,11 +94,73 @@ class QuizViewState extends State<QuizView> {
           ),
         ],
       ),
-      body: initQuizComponents(index),
+      body: Column( children:
+      [
+        SizedBox(height: MediaQuery.of(context).size.height / 20),
+        initQuizComponents(index),
+        SizedBox(height: MediaQuery.of(context).size.height / 15),
+        StreamBuilder<DocumentSnapshot>(
+            stream: FirebaseFirestore.instance.collection('Game').doc(currentGame.id).snapshots(),
+            builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+              if (!snapshot.hasData) {
+                return Text("Loading");
+              }
+
+              DocumentSnapshot document = snapshot.data;
+              currentGame = databaseService.updateGame(document);
+              Map<int,bool> otherPlayersMoves = Map();
+              List<bool> avancementList = currentGame.avancementByQuestionMap[widget.quiz.questions[index].id];
+              for(int i = 0; i < avancementList.length; i++){
+                if(i != indexOfPlayer) {
+                  otherPlayersMoves[i] = avancementList[i];
+                }
+              }
+              if(otherPlayersMoves.keys == null || otherPlayersMoves.keys.isEmpty) {
+                return LoadingWidget();
+              } else {
+                return Expanded(
+                  child: Container(
+                    height: MediaQuery.of(context).size.height / 8,
+                    child:ListView.builder(
+                      itemCount: otherPlayersMoves.keys.length,
+                      itemBuilder: (context, indexOfDisplayer) {
+                        if( otherPlayersMoves[otherPlayersMoves.keys.toList()[indexOfDisplayer]]){
+                          return Center(child: Text("${currentGame.playersId[otherPlayersMoves.keys.toList()[indexOfDisplayer]]} a répondu à la question ! "));
+                        } else {
+                          return Center(child: Text("${currentGame.playersId[otherPlayersMoves.keys.toList()[indexOfDisplayer]]} n'a pas encore répondu à la question"));
+                        }
+                        },),
+                  ),
+                );
+              }
+            }
+        ),
+      ]),
       );
   }
 
-  void nextQuestion() {
+  void verifyGameByPrintingData() {
+    print("l'id de la game est ${currentGame.id}");
+    print("l'id du quiz est ${currentGame.quizId}");
+    for(String playerId in currentGame.playersId){
+      print("un joueur est $playerId");
+    }
+    for(String questionId in currentGame.avancementByQuestionMap.keys) {
+      for(int avancementIndex = 0; avancementIndex < currentGame.avancementByQuestionMap[questionId].length; avancementIndex++) {
+        print("la question $questionId à pour état d'avancement ${currentGame.avancementByQuestionMap[questionId][avancementIndex]} du  joueur $avancementIndex");
+      }
+    }
+
+    for(String playerId in currentGame.scoreByPlayerMap.keys) {
+      print("le score de $playerId est de ${currentGame.scoreByPlayerMap[playerId]} ");
+    }
+
+    print("Partie créée le ${currentGame.dateOfGame.day} à ${currentGame.dateOfGame.hour} : ${currentGame.dateOfGame.minute}");
+  }
+
+  void nextQuestion(String currentQuestionId) async {
+    currentGame.avancementByQuestionMap[currentQuestionId][indexOfPlayer] = true;
+    databaseService.setQuestionFinished(currentGame.id, currentQuestionId, currentGame.avancementByQuestionMap);
     setState(() {
       finishQuestion = true;
     });
@@ -71,6 +170,13 @@ class QuizViewState extends State<QuizView> {
     setState(() {
       isSelectedItem[position] = true;
     });
+  }
+}
+
+class LoadingWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Center(child: Text("Loading...."));
   }
 }
 
@@ -95,7 +201,7 @@ class QuizComponent extends StatelessWidget {
                 child: Text(  displayAvancement + " : ${question.questionName}",
                     style: TextStyle(fontSize: 200, fontWeight: FontWeight.bold)),
               )),
-          SizedBox(height: MediaQuery.of(context).size.height / 8),
+          SizedBox(height: MediaQuery.of(context).size.height / 15),
           Column(
             children: [
               Row(
@@ -113,7 +219,7 @@ class QuizComponent extends StatelessWidget {
                     ),
                     hoverColor:isSelectedItem[0] && question.correctAnswer == question.answers[0] ? Colors.green : isSelectedItem[0] ? Colors.red : Colors.blue,
                     child:
-                    Text(question.answers[0], style: TextStyle(fontSize: 50)),
+                    Text(question.answers[0], style: TextStyle(fontSize: 20)),
                   ),
                   SizedBox(width: 25),
                   FlatButton(
@@ -127,7 +233,7 @@ class QuizComponent extends StatelessWidget {
                     hoverColor:isSelectedItem[1] && question.correctAnswer == question.answers[1] ? Colors.green : isSelectedItem[1] ? Colors.red : Colors.blue,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15)),
-                    child: Text(question.answers[1], style: TextStyle(fontSize: 50)),
+                    child: Text(question.answers[1], style: TextStyle(fontSize: 20)),
                   ),
                 ],
               ),
@@ -147,7 +253,7 @@ class QuizComponent extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15)),
                     child:
-                    Text(question.answers[3], style: TextStyle(fontSize: 50)),
+                    Text(question.answers[3], style: TextStyle(fontSize: 20)),
                   ),
                   SizedBox(width: 25),
                   FlatButton(
@@ -162,7 +268,7 @@ class QuizComponent extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15)),
                     child:
-                    Text(question.answers[2], style: TextStyle(fontSize: 50)),
+                    Text(question.answers[2], style: TextStyle(fontSize: 20)),
                   ),
                 ],
               )
@@ -173,10 +279,10 @@ class QuizComponent extends StatelessWidget {
   }
 
 
-  bool selectedAndVerifyAnswer(String answer, int position) {
+  void selectedAndVerifyAnswer(String answer, int position) {
     parent.setSelected(position);
     if(answer == question.correctAnswer) {
-      parent.nextQuestion();
+      parent.nextQuestion(question.id);
     }
   }
 }

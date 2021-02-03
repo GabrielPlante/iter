@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:iter/models/quiz.dart';
+import 'package:iter/services/databaseService.dart';
 import 'package:iter/views/QuizView.dart';
 import 'package:iter/views/webMainPage.dart';
 
@@ -17,6 +18,7 @@ class QuizCardComponent extends StatefulWidget {
 }
 
 class _QuizCardComponentState extends State<QuizCardComponent> {
+  DatabaseService databaseService = DatabaseService();
 
   @override
   Widget build(BuildContext context) {
@@ -51,13 +53,15 @@ class _QuizCardComponentState extends State<QuizCardComponent> {
                       return Text("Loading");
                     }
                     var userDocument = snapshot.data;
-                    if(userDocument["numberOfPlayers"] >= 2 && widget.quizJoined){
+                    if(userDocument["waitingPlayers"].length >= 2 && widget.quizJoined && snapshot.connectionState == ConnectionState.active){
+                      List<String> playersId = List.castFrom(userDocument['waitingPlayers'] as List ?? []);
+                      adminStartQuiz(playersId);
                       SchedulerBinding.instance.addPostFrameCallback((_) {
                         Navigator.of(context).pop();
                         Navigator.push(context, MaterialPageRoute(builder: (context) => QuizView(quiz: widget.quiz)));
                       });
                     }
-                    return Text("Nombre de joueurs : ${userDocument["numberOfPlayers"]} / 2");
+                    return Text("Nombre de joueurs : ${userDocument["waitingPlayers"].length} / 2");
                   }
               ),
             ],
@@ -65,5 +69,9 @@ class _QuizCardComponentState extends State<QuizCardComponent> {
         ],
       ),
     );
+  }
+
+  void adminStartQuiz(List<String> playersId) async {
+    await databaseService.createGame(widget.quiz.id, playersId, widget.quiz.questions);
   }
 }
