@@ -23,55 +23,94 @@ class _QuizCardComponentState extends State<QuizCardComponent> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      child: Column(
+        child: Container(
+      padding: EdgeInsets.all(10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(widget.quiz.quizName),
-          Row(
+          Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("Nombre de questions : ${widget.quiz.questions.length}"),
               FlatButton(
-                  onPressed: () => widget.parent.updateQuizChoice(widget.quiz.id),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15)
+                  ),
+                  disabledColor: Colors.green,
+                  child: Text("Quizz facile",
+                      style: TextStyle(color: Colors.white))),
+              SizedBox(height: 10),
+              /*FlatButton(
+                disabledColor: Colors.blue,
+                child: Text("${widget.quiz.questions.length} questions", style: TextStyle(color: Colors.white)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15)
+                ),
+              )*/
+              Text("${widget.quiz.questions.length} Questions", style: TextStyle(color: Colors.white)),
+            ],
+          ),
+          FlatButton(
+            height: 50,
+            minWidth: 250,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(25)
+            ),
+            disabledColor: Colors.grey,
+              child: Text(widget.quiz.quizName, style: TextStyle(color: Colors.white))
+          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              FlatButton(
+                  onPressed: () =>
+                      widget.parent.updateQuizChoice(widget.quiz.id),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      !widget.quizJoined ? Icon(Icons.add) : Icon(Icons.keyboard_return),
+                      !widget.quizJoined
+                          ? Icon(Icons.add)
+                          : Icon(Icons.keyboard_return),
                       !widget.quizJoined ? Text("Rejoindre") : Text("Quitter")
                     ],
-                  )
-              )
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text("Difficulté : facile"),
+                  )),
+              SizedBox(height: 10),
               StreamBuilder<DocumentSnapshot>(
-                stream: FirebaseFirestore.instance.collection('Quiz').doc(widget.quiz.id).snapshots(),
+                  stream: FirebaseFirestore.instance
+                      .collection('Quiz')
+                      .doc(widget.quiz.id)
+                      .snapshots(),
                   builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
                     if (!snapshot.hasData) {
                       return Text("Loading");
                     }
                     var userDocument = snapshot.data;
-                    if(userDocument["waitingPlayers"].length >= 2 && widget.quizJoined && snapshot.connectionState == ConnectionState.active){
-                      List<String> playersId = List.castFrom(userDocument['waitingPlayers'] as List ?? []);
+                    if (userDocument["waitingPlayers"].length >= 2 &&
+                        widget.quizJoined &&
+                        snapshot.connectionState == ConnectionState.active) {
+                      List<String> playersId = List.castFrom(
+                          userDocument['waitingPlayers'] as List ?? []);
                       adminStartQuiz(playersId);
                       SchedulerBinding.instance.addPostFrameCallback((_) {
                         Navigator.of(context).pop();
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => QuizView(quiz: widget.quiz)));
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    QuizView(quiz: widget.quiz)));
                       });
                     }
-                    return Text("Nombre de joueurs : ${userDocument["waitingPlayers"].length} / 2");
-                  }
-              ),
+                    return Text(
+                        "${userDocument["waitingPlayers"].length} / 2 Joueurs");
+                  }),
             ],
           )
         ],
       ),
-    );
+    ));
   }
 
   void adminStartQuiz(List<String> playersId) async {
-    await databaseService.createGame(widget.quiz.id, playersId, widget.quiz.questions);
+    await databaseService.createGame(
+        widget.quiz.id, playersId, widget.quiz.questions);
   }
 }

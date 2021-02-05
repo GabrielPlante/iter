@@ -41,7 +41,7 @@ class QuizViewState extends State<QuizView> {
   }
 
   void initGame() async {
-    bool isWeb = MyApp().verifyWebDevice();
+    bool isWeb = MyApp.isWebDevice;
     DateTime dateNow = DateTime.now();
     List<Game> result = await databaseService.allGame;
     for(Game game in result) {
