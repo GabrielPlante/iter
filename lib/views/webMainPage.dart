@@ -32,7 +32,9 @@ class WebMainPageState extends State<WebMainPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Menu Principal')),
-      body: quizs.isEmpty ? Text(" Nothing") :
+      body: quizs.isEmpty ?
+      Center(child: CircularProgressIndicator())
+          :
       ListView.builder(
         itemCount: quizs.length,
         itemBuilder: (context, index) {
