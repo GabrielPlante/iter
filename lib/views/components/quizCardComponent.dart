@@ -81,7 +81,7 @@ class _QuizCardComponentState extends State<QuizCardComponent> {
                       .snapshots(),
                   builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
                     if (!snapshot.hasData) {
-                      return Text("Loading");
+                      return Center(child: CircularProgressIndicator());
                     }
                     var userDocument = snapshot.data;
                     if (userDocument["waitingPlayers"].length >= 2 &&
