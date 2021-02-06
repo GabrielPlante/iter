@@ -121,7 +121,7 @@ class QuizViewState extends State<QuizView> {
             stream: FirebaseFirestore.instance.collection('Game').doc(currentGame.id).snapshots(),
             builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
               if (!snapshot.hasData) {
-                return Text("Loading");
+                return Center(child: CircularProgressIndicator());
               }
 
               DocumentSnapshot document = snapshot.data;
@@ -271,7 +271,7 @@ class QuizViewState extends State<QuizView> {
 class LoadingWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Center(child: Text("Loading...."));
+    return Center(child: CircularProgressIndicator());
   }
 }
 
