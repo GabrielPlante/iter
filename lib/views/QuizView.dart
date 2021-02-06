@@ -6,7 +6,9 @@ import 'package:iter/models/game.dart';
 import 'package:iter/models/question.dart';
 import 'package:iter/models/quiz.dart';
 import 'package:iter/services/databaseService.dart';
+import 'package:iter/views/components/webComponents/chooseNextQuestionPanel.dart';
 import 'package:iter/views/webMainPage.dart';
+import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import 'mobileMainPage.dart';
 
@@ -27,6 +29,10 @@ class QuizViewState extends State<QuizView> {
   int index = 0;
   int indexOfPlayer = 0;
   List<bool> isSelectedItem = [false, false, false, false];
+  Difficulty selectedDifficulty = Difficulty.EASY;
+  Map<Difficulty,int> availableQuestionsNumberMap = Map();
+  PanelController panelController = PanelController();
+
 
   Widget initQuizComponents(int index) {
     String displayAvancement = " Question ${index + 1} / ${widget.quiz.questions.length} ";
@@ -36,6 +42,16 @@ class QuizViewState extends State<QuizView> {
   @override
   void initState() {
     questions = widget.quiz.questions;
+    for(Difficulty difficulty in Difficulty.values) {
+      int count = 0;
+      for(Question question in questions) {
+        if(difficulty == question.difficulty){
+          count++;
+        }
+      }
+      availableQuestionsNumberMap[difficulty] = count;
+    }
+    availableQuestionsNumberMap[questions[index].difficulty] --;
     initGame();
     super.initState();
   }
@@ -77,6 +93,8 @@ class QuizViewState extends State<QuizView> {
                 color: Colors.green,
                 child: FlatButton(
                   onPressed: () {
+                    verifyForChangeIndexForDifficulty();
+                    updateAvailableQuestionMap(questions[index+1].difficulty);
                     setState( () {
                       index++;
                       finishQuestion = false;
@@ -124,17 +142,47 @@ class QuizViewState extends State<QuizView> {
                     child:ListView.builder(
                       itemCount: otherPlayersMoves.keys.length,
                       itemBuilder: (context, indexOfDisplayer) {
-                        if( otherPlayersMoves[otherPlayersMoves.keys.toList()[indexOfDisplayer]]){
-                          return Center(child: Text("${currentGame.playersId[otherPlayersMoves.keys.toList()[indexOfDisplayer]]} a répondu à la question ! "));
-                        } else {
-                          return Center(child: Text("${currentGame.playersId[otherPlayersMoves.keys.toList()[indexOfDisplayer]]} n'a pas encore répondu à la question"));
-                        }
-                        },),
+                        return ViewAnswerFromPlayer(playerName: currentGame.playersId[otherPlayersMoves.keys.toList()[indexOfDisplayer]],hasAswered: otherPlayersMoves[otherPlayersMoves.keys.toList()[indexOfDisplayer]]);
+                        },
+                    ),
                   ),
                 );
               }
             }
         ),
+        MyApp.isWebDevice ?
+        SlidingUpPanel(
+          controller: panelController,
+          minHeight: MediaQuery.of(context).size.height / 30,
+          maxHeight: MediaQuery.of(context).size.height / 7.5,
+          collapsed: GestureDetector(
+            onTap: () => panelController.open(),
+            child: Container(
+                height: MediaQuery.of(context).size.height / 30,
+                color: Theme.of(context).backgroundColor,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.keyboard_arrow_up),
+                    Icon(Icons.keyboard_arrow_up),
+                    Icon(Icons.keyboard_arrow_up),
+                    SizedBox(width: 30.0),
+                    Center(child: Text("Choisir la prochaine question", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
+                    SizedBox(width: 30.0),
+                    Icon(Icons.keyboard_arrow_up),
+                    Icon(Icons.keyboard_arrow_up),
+                    Icon(Icons.keyboard_arrow_up),
+                  ]
+                )
+            ),
+          ),
+          panel: Column(
+            children: [
+              CustomCloserPanel(parent: this),
+              ChooseNextQuestionPanel(availableQuestionsNumberMap: availableQuestionsNumberMap, selectedNextDifficulty: selectedDifficulty, quizViewState: this)
+            ],
+          )
+        ) : null,
       ]),
       );
   }
@@ -171,6 +219,53 @@ class QuizViewState extends State<QuizView> {
       isSelectedItem[position] = true;
     });
   }
+
+  void changeSelectDifficulty(Difficulty newDifficulty) {
+    setState(() {
+      selectedDifficulty = newDifficulty;
+    });
+  }
+
+  void closePanel() async {
+    await panelController.close();
+    setState(() {
+      print(panelController.isPanelClosed);
+    });
+  }
+
+  void updateAvailableQuestionMap(Difficulty difficultyOfQuestionAnswered) {
+    if(availableQuestionsNumberMap[difficultyOfQuestionAnswered] != 0) {
+      setState(() {
+        availableQuestionsNumberMap[difficultyOfQuestionAnswered] --;
+      });
+    }
+
+    if(availableQuestionsNumberMap[selectedDifficulty] == 0){
+      for(Difficulty dif in Difficulty.values) {
+        if(availableQuestionsNumberMap[dif] != 0) {
+          selectedDifficulty = dif;
+          break;
+        }
+      }
+    }
+  }
+
+  void verifyForChangeIndexForDifficulty(){
+    if(questions[index+1].difficulty != selectedDifficulty) {
+      for(Question q in questions.getRange(index+1, questions.length)) {
+        if(q.difficulty == selectedDifficulty) {
+          Question question = questions[index+1];
+          int indexOfChangingQ = questions.indexOf(q);
+          setState(() {
+            questions[index+1] = q;
+            questions[indexOfChangingQ] = question;
+          });
+          break;
+        }
+      }
+    }
+  }
+
 }
 
 class LoadingWidget extends StatelessWidget {
@@ -293,5 +388,81 @@ class EndQuizComponent extends StatelessWidget {
     return Center(child: Text("End of the quiz"));
   }
 }
+
+class CustomCloserPanel extends StatelessWidget {
+  final QuizViewState parent;
+
+  CustomCloserPanel({this.parent});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => closePanel(),
+      child: Container(
+          height: MediaQuery.of(context).size.height / 30,
+          color: Theme.of(context).backgroundColor,
+          child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.keyboard_arrow_down),
+                Icon(Icons.keyboard_arrow_down),
+                Icon(Icons.keyboard_arrow_down),
+                SizedBox(width: 30.0),
+                Center(child: Text("Prochaine Question", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
+                SizedBox(width: 30.0),
+                Icon(Icons.keyboard_arrow_down),
+                Icon(Icons.keyboard_arrow_down),
+                Icon(Icons.keyboard_arrow_down),
+              ]
+          )
+      ),
+    );
+  }
+
+  void closePanel() {
+    parent.closePanel();
+  }
+}
+
+
+class ViewAnswerFromPlayer extends StatelessWidget {
+  final String playerName;
+  final bool hasAswered;
+
+  ViewAnswerFromPlayer({this.playerName, this.hasAswered});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: MediaQuery.of(context).size.height / 10,
+      decoration: BoxDecoration(
+        color: hasAswered ? Colors.green : Colors.red
+      ),
+      child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(100),
+              child: SizedBox(
+                  height: MediaQuery.of(context).size.height / 15,
+                  width: MediaQuery.of(context).size.width / 15,
+                  child: Image.asset(
+                    playerName == "Franck" ? "assets/images/franck.jpg" : "assets/images/amelie.jpg",
+                    fit: BoxFit.fill,
+                  ),
+
+              ),
+            ),
+            SizedBox(width: 10.0),
+            Center(
+                child: Text(hasAswered ? "$playerName a répondu à la question ! ": "$playerName n'a pas encore répondu à la question", style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+          ]
+        ),
+    );
+  }
+}
+
+
 
 
