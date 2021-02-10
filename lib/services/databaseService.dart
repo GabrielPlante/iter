@@ -70,6 +70,8 @@ class DatabaseService {
       DateTime dateOfGame = document['dateOfGame'].toDate() ?? null;
       List<String> playersId = List.castFrom(document['playersId'] as List ?? []);
 
+      List<String> questionsOrder = List.castFrom(document['questionsOrder'] as List ?? []);
+
       Map<String, List<bool>> avancementByQuestionMap = Map();
       if(document['avancementByQuestionMap'] != null) {
         document['avancementByQuestionMap'].forEach((key, value) {
@@ -87,7 +89,7 @@ class DatabaseService {
         });
       }
 
-      Game game = Game.AlreadyExisting(document.id, document['quizId'], dateOfGame, playersId, avancementByQuestionMap, scoreByPlayerMap);
+      Game game = Game.AlreadyExisting(document.id, document['quizId'], dateOfGame, playersId, avancementByQuestionMap, scoreByPlayerMap, questionsOrder);
 
       games.add(game);
     }
@@ -124,11 +126,12 @@ class DatabaseService {
 
   Future<String> createGame(String quizId, List<String> playersId, List<Question> questions) async {
     DateTime dateOfGame = DateTime.now();
+    List<String> questionsOrder = [];
     Map<String,List<bool>> avancementByQuestionMap = HashMap();
     Map<String,int> scoreByPlayerMap = HashMap();
 
     for(Question question in questions) {
-
+      questionsOrder.add(question.id);
       List<bool> avancementByPlayer = [];
       for(int i = 0; i < playersId.length; i++) {
         avancementByPlayer.add(false);
@@ -146,7 +149,8 @@ class DatabaseService {
       'playersId' : playersId,
       'dateOfGame' : dateOfGame,
       'avancementByQuestionMap' : avancementByQuestionMap,
-      'scoreByPlayerMap' : scoreByPlayerMap
+      'scoreByPlayerMap' : scoreByPlayerMap,
+      'questionsOrder' : questionsOrder,
     });
 
     return docRef.id;
@@ -155,6 +159,8 @@ class DatabaseService {
   Game updateGame(DocumentSnapshot document) {
     DateTime dateOfGame = document['dateOfGame'].toDate() ?? null;
     List<String> playersId = List.castFrom(document['playersId'] as List ?? []);
+
+    List<String> questionsOrder = List.castFrom(document['questionsOrder'] as List ?? []);
 
     Map<String, List<bool>> avancementByQuestionMap = Map();
     if(document['avancementByQuestionMap'] != null) {
@@ -173,7 +179,7 @@ class DatabaseService {
       });
     }
 
-    Game game = Game.AlreadyExisting(document.id, document['quizId'], dateOfGame, playersId, avancementByQuestionMap, scoreByPlayerMap);
+    Game game = Game.AlreadyExisting(document.id, document['quizId'], dateOfGame, playersId, avancementByQuestionMap, scoreByPlayerMap, questionsOrder);
 
     return game;
   }
@@ -184,6 +190,8 @@ class DatabaseService {
     DateTime dateOfGame = document['dateOfGame'].toDate() ?? null;
     List<String> playersId = List.castFrom(document['playersId'] as List ?? []);
 
+    List<String> questionsOrder = List.castFrom(document['questionsOrder'] as List ?? []);
+
     Map<String, List<bool>> avancementByQuestionMap = Map();
     if(document['avancementByQuestionMap'] != null) {
       document['avancementByQuestionMap'].forEach((key, value) {
@@ -201,7 +209,7 @@ class DatabaseService {
       });
     }
 
-    Game game = Game.AlreadyExisting(document.id, document['quizId'], dateOfGame, playersId, avancementByQuestionMap, scoreByPlayerMap);
+    Game game = Game.AlreadyExisting(document.id, document['quizId'], dateOfGame, playersId, avancementByQuestionMap, scoreByPlayerMap, questionsOrder);
 
     return game;
 
@@ -217,6 +225,10 @@ class DatabaseService {
 
   Future setQuestionFinished(String gameId, String questionId, Map<String,List<bool>> newAvancementMap) async {
     await gameCollection.doc(gameId).update({'avancementByQuestionMap' : newAvancementMap });
+  }
+
+  Future updateQuestionOrder(String gameId,List<String> newQuestionsOrder) async {
+    await gameCollection.doc(gameId).update({'questionsOrder' : newQuestionsOrder });
   }
 
 }

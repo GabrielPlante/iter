@@ -32,11 +32,18 @@ class QuizViewState extends State<QuizView> {
   Difficulty selectedDifficulty = Difficulty.EASY;
   Map<Difficulty,int> availableQuestionsNumberMap = Map();
   PanelController panelController = PanelController();
+  bool playerAnsweredQuestion = false;
 
 
   Widget initQuizComponents(int index) {
     String displayAvancement = " Question ${index + 1} / ${widget.quiz.questions.length} ";
-    if(index < questions.length) return QuizComponent(question: questions[index], parent: this, isSelectedItem: isSelectedItem, displayAvancement: displayAvancement);
+    Question currentQuestion;
+    for(Question q in questions){
+      if(q.id == currentGame.questionsOrder[index]){
+        currentQuestion = q;
+      }
+    }
+    if(index < questions.length) return QuizComponent(question: currentQuestion, parent: this, isSelectedItem: isSelectedItem, displayAvancement: displayAvancement);
     else return EndQuizComponent();
   }
   @override
@@ -81,24 +88,24 @@ class QuizViewState extends State<QuizView> {
 
   @override
   Widget build(BuildContext context) {
-    if(currentGame == null) return LoadingWidget();
+    if(currentGame == null) return CircularProgressIndicator();
     /// In order to verify what the actual fuck is going from the database to your models, shit happens my friend. Sometimes I just don't know what is going on so remember, print(wtf) at every line to know which one is fucking with you.
     //if(currentGame != null) verifyGameByPrintingData();
     return Scaffold(
       appBar: AppBar(title: Text(widget.quiz.quizName),
         actions: [
           Visibility(
-              visible: finishQuestion,
+              visible: finishQuestion && playerAnsweredQuestion,
               child: Container(
                 color: Colors.green,
                 child: FlatButton(
                   onPressed: () {
-                    verifyForChangeIndexForDifficulty();
                     updateAvailableQuestionMap(questions[index+1].difficulty);
                     setState( () {
                       index++;
                       finishQuestion = false;
                       isSelectedItem = [false, false, false, false];
+                      playerAnsweredQuestion = false;
                     });
                   },
                     child: Row(
@@ -112,8 +119,9 @@ class QuizViewState extends State<QuizView> {
           ),
         ],
       ),
-      body: Column( children:
-      [
+      body:
+
+      Column( children: [
         SizedBox(height: MediaQuery.of(context).size.height / 20),
         initQuizComponents(index),
         SizedBox(height: MediaQuery.of(context).size.height / 15),
@@ -136,6 +144,7 @@ class QuizViewState extends State<QuizView> {
               if(otherPlayersMoves.keys == null || otherPlayersMoves.keys.isEmpty) {
                 return LoadingWidget();
               } else {
+                asyncTerminateQuestion(otherPlayersMoves.values.toList()[0]);
                 return Expanded(
                   child: Container(
                     height: MediaQuery.of(context).size.height / 8,
@@ -182,7 +191,7 @@ class QuizViewState extends State<QuizView> {
               ChooseNextQuestionPanel(availableQuestionsNumberMap: availableQuestionsNumberMap, selectedNextDifficulty: selectedDifficulty, quizViewState: this)
             ],
           )
-        ) : null,
+        ) : Container(),
       ]),
       );
   }
@@ -212,6 +221,10 @@ class QuizViewState extends State<QuizView> {
     setState(() {
       finishQuestion = true;
     });
+  }
+
+  void changeQuestionOrder() async {
+    databaseService.updateQuestionOrder(currentGame.id, currentGame.questionsOrder);
   }
 
   void setSelected(int position) {
@@ -250,7 +263,7 @@ class QuizViewState extends State<QuizView> {
     }
   }
 
-  void verifyForChangeIndexForDifficulty(){
+  void verifyForChangeIndexForDifficulty() async {
     if(questions[index+1].difficulty != selectedDifficulty) {
       for(Question q in questions.getRange(index+1, questions.length)) {
         if(q.difficulty == selectedDifficulty) {
@@ -258,11 +271,27 @@ class QuizViewState extends State<QuizView> {
           int indexOfChangingQ = questions.indexOf(q);
           setState(() {
             questions[index+1] = q;
+            currentGame.questionsOrder[index+1] = q.id;
             questions[indexOfChangingQ] = question;
+            currentGame.questionsOrder[indexOfChangingQ] = question.id;
           });
+          changeQuestionOrder();
           break;
         }
       }
+    }
+  }
+
+  Future asyncTerminateQuestion(bool updateMove) async {
+    if(updateMove && !playerAnsweredQuestion){
+      Future.delayed(
+          const Duration(seconds: 2),
+              () {
+            setState(() {
+              playerAnsweredQuestion = true;
+            });
+              }
+      );
     }
   }
 
@@ -444,8 +473,8 @@ class ViewAnswerFromPlayer extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(100),
               child: SizedBox(
-                  height: MediaQuery.of(context).size.height / 15,
-                  width: MediaQuery.of(context).size.width / 15,
+                  height: MyApp.isWebDevice ? MediaQuery.of(context).size.height / 15 : 50,
+                  width: MyApp.isWebDevice ? MediaQuery.of(context).size.width / 15 : 50,
                   child: Image.asset(
                     playerName == "Franck" ? "assets/images/franck.jpg" : "assets/images/amelie.jpg",
                     fit: BoxFit.fill,

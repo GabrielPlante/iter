@@ -6,6 +6,7 @@ class Game {
   DateTime dateOfGame;
   String quizId;
   List<String> playersId;
+  List<String> questionsOrder = [];
 
   Map<String,List<bool>> avancementByQuestionMap = HashMap();
   Map<String,int> scoreByPlayerMap = HashMap();
@@ -17,6 +18,7 @@ class Game {
 
 
     for(Question question in questions) {
+      questionsOrder.add(question.id);
       List<bool> avancementByPlayer = [];
       for(int i=0; i < playersId.length; i++) {
         avancementByPlayer.add(false);
@@ -30,13 +32,14 @@ class Game {
     }
   }
 
-  Game.AlreadyExisting(String id, String quizId, DateTime dateOfGame, List<String> playersId, Map<String,List<bool>> avancementByQuestionMap, Map<String,int>scoreByPlayerMap) {
+  Game.AlreadyExisting(String id, String quizId, DateTime dateOfGame, List<String> playersId, Map<String,List<bool>> avancementByQuestionMap, Map<String,int>scoreByPlayerMap, List<String> questionsOrder) {
     this.id = id;
     this.quizId = quizId;
     this.dateOfGame = dateOfGame;
     this.playersId = playersId;
     this.avancementByQuestionMap = avancementByQuestionMap;
     this.scoreByPlayerMap = scoreByPlayerMap;
+    this.questionsOrder = questionsOrder;
   }
 
 }

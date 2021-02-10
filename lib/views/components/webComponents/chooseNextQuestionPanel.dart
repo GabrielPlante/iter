@@ -30,6 +30,10 @@ class ChooseNextQuestionPanel extends StatelessWidget {
   void changeSelectDifficulty(Difficulty newSelectedDifficulty) {
     quizViewState.changeSelectDifficulty(newSelectedDifficulty);
   }
+
+  void callUpdateQuestionOrderFromParent() {
+    quizViewState.verifyForChangeIndexForDifficulty();
+  }
 }
 
 
@@ -66,7 +70,10 @@ class DifficultyBox extends StatelessWidget {
   }
 
   void _buttonPressed() {
-    if(difficulty != selectedNextDifficulty) parent.changeSelectDifficulty(difficulty);
+    if(difficulty != selectedNextDifficulty) {
+      parent.changeSelectDifficulty(difficulty);
+      parent.callUpdateQuestionOrderFromParent();
+    }
   }
 }
 
