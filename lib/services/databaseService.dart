@@ -89,7 +89,7 @@ class DatabaseService {
         });
       }
 
-      Game game = Game.AlreadyExisting(document.id, document['quizId'], dateOfGame, playersId, avancementByQuestionMap, scoreByPlayerMap, questionsOrder);
+      Game game = Game.AlreadyExisting(document.id, document['quizId'], dateOfGame, playersId, avancementByQuestionMap, scoreByPlayerMap, questionsOrder, document['jumpQuestion']);
 
       games.add(game);
     }
@@ -151,6 +151,7 @@ class DatabaseService {
       'avancementByQuestionMap' : avancementByQuestionMap,
       'scoreByPlayerMap' : scoreByPlayerMap,
       'questionsOrder' : questionsOrder,
+      'jumpQuestion' : false
     });
 
     return docRef.id;
@@ -179,7 +180,10 @@ class DatabaseService {
       });
     }
 
-    Game game = Game.AlreadyExisting(document.id, document['quizId'], dateOfGame, playersId, avancementByQuestionMap, scoreByPlayerMap, questionsOrder);
+    bool jumpQuestion = document["jumpQuestion"];
+
+
+    Game game = Game.AlreadyExisting(document.id, document['quizId'], dateOfGame, playersId, avancementByQuestionMap, scoreByPlayerMap, questionsOrder, jumpQuestion);
 
     return game;
   }
@@ -209,7 +213,9 @@ class DatabaseService {
       });
     }
 
-    Game game = Game.AlreadyExisting(document.id, document['quizId'], dateOfGame, playersId, avancementByQuestionMap, scoreByPlayerMap, questionsOrder);
+    bool jumpQuestion = document["jumpQuestion"];
+
+    Game game = Game.AlreadyExisting(document.id, document['quizId'], dateOfGame, playersId, avancementByQuestionMap, scoreByPlayerMap, questionsOrder,jumpQuestion);
 
     return game;
 
@@ -229,6 +235,10 @@ class DatabaseService {
 
   Future updateQuestionOrder(String gameId,List<String> newQuestionsOrder) async {
     await gameCollection.doc(gameId).update({'questionsOrder' : newQuestionsOrder });
+  }
+
+  Future cheatByJumpingQuestion(String gameId, bool value) async {
+    await gameCollection.doc(gameId).update({'jumpQuestion' : value });
   }
 
 }

@@ -135,12 +135,14 @@ class QuizViewState extends State<QuizView> {
               DocumentSnapshot document = snapshot.data;
               currentGame = databaseService.updateGame(document);
               Map<int,bool> otherPlayersMoves = Map();
-              List<bool> avancementList = currentGame.avancementByQuestionMap[widget.quiz.questions[index].id];
+              String questionId = currentGame.questionsOrder[index];
+              List<bool> avancementList = currentGame.avancementByQuestionMap[questionId];
               for(int i = 0; i < avancementList.length; i++){
                 if(i != indexOfPlayer) {
                   otherPlayersMoves[i] = avancementList[i];
                 }
               }
+              if(!MyApp.isWebDevice && currentGame.jumpQuestion) jumpQuestionForPatient();
               if(otherPlayersMoves.keys == null || otherPlayersMoves.keys.isEmpty) {
                 return LoadingWidget();
               } else {
@@ -151,7 +153,7 @@ class QuizViewState extends State<QuizView> {
                     child:ListView.builder(
                       itemCount: otherPlayersMoves.keys.length,
                       itemBuilder: (context, indexOfDisplayer) {
-                        return ViewAnswerFromPlayer(playerName: currentGame.playersId[otherPlayersMoves.keys.toList()[indexOfDisplayer]],hasAswered: otherPlayersMoves[otherPlayersMoves.keys.toList()[indexOfDisplayer]]);
+                        return ViewAnswerFromPlayer(playerName: currentGame.playersId[otherPlayersMoves.keys.toList()[indexOfDisplayer]],hasAswered: otherPlayersMoves[otherPlayersMoves.keys.toList()[indexOfDisplayer]], parent: this);
                         },
                     ),
                   ),
@@ -283,7 +285,7 @@ class QuizViewState extends State<QuizView> {
   }
 
   Future asyncTerminateQuestion(bool updateMove) async {
-    if(updateMove && !playerAnsweredQuestion){
+    if(updateMove && !playerAnsweredQuestion){;
       Future.delayed(
           const Duration(seconds: 2),
               () {
@@ -293,6 +295,36 @@ class QuizViewState extends State<QuizView> {
               }
       );
     }
+  }
+
+  void cheatToNextQuestion() async {
+    updateAvailableQuestionMap(questions[index+1].difficulty);
+    nextQuestion(currentGame.questionsOrder[index]);
+    databaseService.cheatByJumpingQuestion(currentGame.id, true);
+    setState( () {
+      index++;
+      finishQuestion = false;
+      isSelectedItem = [false, false, false, false];
+      playerAnsweredQuestion = false;
+    });
+  }
+
+  void jumpQuestionForPatient() async {
+    await databaseService.cheatByJumpingQuestion(currentGame.id, false);
+    Future.delayed(
+        const Duration(seconds: 2),
+            () {
+          setState(() {
+            nextQuestion(currentGame.questionsOrder[index]);
+            setState( () {
+              index++;
+              finishQuestion = false;
+              isSelectedItem = [false, false, false, false];
+              playerAnsweredQuestion = false;
+            });
+          });
+        }
+    );
   }
 
 }
@@ -457,8 +489,9 @@ class CustomCloserPanel extends StatelessWidget {
 class ViewAnswerFromPlayer extends StatelessWidget {
   final String playerName;
   final bool hasAswered;
+  final QuizViewState parent;
 
-  ViewAnswerFromPlayer({this.playerName, this.hasAswered});
+  ViewAnswerFromPlayer({this.playerName, this.hasAswered, this.parent});
 
   @override
   Widget build(BuildContext context) {
@@ -468,8 +501,9 @@ class ViewAnswerFromPlayer extends StatelessWidget {
         color: hasAswered ? Colors.green : Colors.red
       ),
       child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MyApp.isWebDevice ? MainAxisAlignment.start : MainAxisAlignment.center,
           children: [
+            SizedBox(width: MediaQuery.of(context).size.width / 8),
             ClipRRect(
               borderRadius: BorderRadius.circular(100),
               child: SizedBox(
@@ -486,9 +520,33 @@ class ViewAnswerFromPlayer extends StatelessWidget {
             Center(
                 child: Text(hasAswered ? "$playerName a répondu à la question ! ": "$playerName n'a pas encore répondu à la question", style: TextStyle(fontWeight: FontWeight.bold)),
             ),
+            SizedBox(width: MyApp.isWebDevice ? 20 : 0),
+            Spacer(),
+            Visibility(
+              visible: MyApp.isWebDevice,
+              child: Padding(
+                padding: EdgeInsets.only(right: MediaQuery.of(context).size.width / 8),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.lightBlueAccent,
+                    borderRadius: BorderRadius.circular(40),
+                  ),
+                  width: MediaQuery.of(context).size.width / 6,
+                  height: MediaQuery.of(context).size.height / 15,
+                  child: FlatButton(
+                    onPressed: () => jumpToNextQuestion(),
+                    child: Text("Sauter la question"),
+                  ),
+                ),
+              ),
+            )
           ]
         ),
     );
+  }
+
+  void jumpToNextQuestion() {
+    parent.cheatToNextQuestion();
   }
 }
 
