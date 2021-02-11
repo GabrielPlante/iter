@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
 
   MaterialApp withMaterialApp(Widget body) {
     return MaterialApp(
-      title: 'Test BDD',
+      title: 'Quiz',
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark(),
       home: Scaffold(

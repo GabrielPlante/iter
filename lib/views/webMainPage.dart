@@ -37,6 +37,7 @@ class WebMainPageState extends State<WebMainPage> {
           :
       ListView.builder(
         itemCount: quizs.length,
+
         itemBuilder: (context, index) {
           //return QuizView(quiz: quizs[index]);
           return QuizCardComponent(quiz: quizs[index],quizJoined : quizs[index].id == quizChosen, parent: this );

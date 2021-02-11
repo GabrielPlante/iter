@@ -40,7 +40,7 @@ extension DifficultyExtension on Difficulty {
       case Difficulty.DIFFICULT:
         return "Difficile";
       case Difficulty.INSANE:
-        return "Très difficile";
+        return "Expert";
       default:
         return null;
     }

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:iter/models/question.dart';
 import 'package:iter/models/quiz.dart';
 import '../QuizView.dart';
 import '../mobileMainPage.dart';
@@ -20,50 +21,176 @@ class _QuizCardComponentForMobileState extends State<QuizCardComponentForMobile>
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Column(
-        children: [
-          Text(widget.quiz.quizName),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text("Nombre de questions : ${widget.quiz.questions.length}"),
-              FlatButton(
-                  onPressed: () => widget.parent.updateQuizChoice(widget.quiz.id),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      !widget.quizJoined ? Icon(Icons.add) : Icon(Icons.keyboard_return),
-                      !widget.quizJoined ? Text("Rejoindre") : Text("Quitter")
-                    ],
-                  )
-              )
-            ],
+    return Padding(
+      padding: EdgeInsets.only(bottom: 10),
+      child: ClipRRect(
+        child: Banner(
+          location: BannerLocation.topStart,
+          color: averageQuizDifficulty().color,
+          message: "Quiz ${averageQuizDifficulty().name}",
+          child: Container(
+            height: MediaQuery
+                .of(context)
+                .size
+                .height / 5,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(30.0),
+              image: DecorationImage(
+                  image: AssetImage("assets/images/${widget.quiz.imagePath}.jpg"),
+                  fit: BoxFit.cover),
+            ),
+            padding: EdgeInsets.all(10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+
+                    Text(widget.quiz.questions.length == 1
+                        ? "${widget.quiz.questions.length} Question"
+                        : "${widget.quiz.questions.length} Questions",
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)
+                    ),
+                  ],
+                ),
+                Container(
+                    height: MediaQuery
+                        .of(context)
+                        .size
+                        .height / 20,
+                    width: MediaQuery
+                        .of(context)
+                        .size
+                        .width / 3,
+                    decoration: BoxDecoration(
+                        color: averageQuizDifficulty().color, borderRadius: BorderRadius.circular(30)
+                    ),
+                    child: Center(
+                        child: Text(widget.quiz.quizName, maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(color: Colors.white,
+                                fontWeight: FontWeight.bold, fontSize: 15
+                            )
+                        )
+                    )
+                ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      height: MediaQuery
+                          .of(context)
+                          .size
+                          .height / 25,
+                      width: MediaQuery
+                          .of(context)
+                          .size
+                          .width / 4,
+                      decoration: BoxDecoration(
+                          color: !widget.quizJoined ? Colors.blue : Colors.red,
+                          borderRadius: BorderRadius.circular(30)
+                      ),
+                      child: FlatButton(
+                          onPressed: () =>
+                              widget.parent.updateQuizChoice(widget.quiz.id),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              !widget.quizJoined ? Text("Rejoindre") : Text("Quitter")
+                            ],
+                          )
+                      ),
+                    ),
+                    StreamBuilder<DocumentSnapshot>(
+                        stream: FirebaseFirestore.instance
+                            .collection('Quiz')
+                            .doc(widget.quiz.id)
+                            .snapshots(),
+                        builder: (context,
+                            AsyncSnapshot<DocumentSnapshot> snapshot) {
+                          if (!snapshot.hasData) {
+                            return Center(child: CircularProgressIndicator());
+                          }
+                          var userDocument = snapshot.data;
+                          if (userDocument["waitingPlayers"].length >= 2 &&
+                              widget.quizJoined &&
+                              snapshot.connectionState == ConnectionState.active) {
+                            SchedulerBinding.instance.addPostFrameCallback((_) {
+                              Navigator.of(context).pop();
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          QuizView(quiz: widget.quiz)
+                                  )
+                              );
+                            }
+                            );
+                          }
+                          List<String> playersId = List.castFrom(
+                              userDocument['waitingPlayers'] as List ?? []);
+                          return Row(
+                            children: [
+                              ClipRRect(
+                                  borderRadius: BorderRadius.circular(100),
+                                  child: SizedBox(
+                                      width : 30,
+                                      height : 30,
+                                      child: Image.asset(playersId == null || playersId.length == 0 ? "assets/images/profil.jpg" : "assets/images/${returnImagePath(playersId[0])}.jpg"))),
+                              Text(" et ", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(100),
+                                child: SizedBox(
+                                    width : 30,
+                                    height : 30,
+                                    child: Image.asset(playersId == null || playersId.length < 2 ? "assets/images/profil.jpg" : "assets/images/${returnImagePath(playersId[1])}.jpg")),
+                              )
+                            ],
+                          );
+                        }
+                    ),
+                  ],
+                )
+              ],
+            ),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text("Difficulté : facile"),
-              StreamBuilder<DocumentSnapshot>(
-                  stream: FirebaseFirestore.instance.collection('Quiz').doc(widget.quiz.id).snapshots(),
-                  builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-                    if (!snapshot.hasData) {
-                      return Text("Loading");
-                    }
-                    var userDocument = snapshot.data;
-                    if(userDocument["waitingPlayers"].length >= 2 && widget.quizJoined && snapshot.connectionState == ConnectionState.active){
-                      SchedulerBinding.instance.addPostFrameCallback((_) {
-                        Navigator.of(context).pop();
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => QuizView(quiz: widget.quiz)));
-                      });
-                    }
-                    return Text("Nombre de joueurs : ${userDocument["waitingPlayers"].length} / 2");
-                  }
-              ),
-            ],
-          )
-        ],
+        ),
       ),
     );
+  }
+
+
+  Difficulty averageQuizDifficulty() {
+    double average = 0;
+    for (Question question in widget.quiz.questions) {
+      average += question.difficulty.index;
+    }
+    average = average / widget.quiz.questions.length;
+
+    if (average < 1) {
+      return Difficulty.EASY;
+    }
+    if (average >= 1 && average < 2) {
+      return Difficulty.MODERATE;
+    }
+    if (average >= 2 && average < 3) {
+      return Difficulty.DIFFICULT;
+    }
+    if (average >= 3) {
+      return Difficulty.INSANE;
+    }
+  }
+
+  String returnImagePath(String player) {
+    if(player == "Amelie") {
+      return "amelie";
+    }
+    if(player == "Franck") {
+      return "franck";
+    }
+    else {
+      return "profil";
+    }
   }
 }

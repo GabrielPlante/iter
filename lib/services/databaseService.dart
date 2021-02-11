@@ -53,7 +53,7 @@ class DatabaseService {
       List<String> waitingPlayers = List.castFrom(document['waitingPlayers'] as List ?? []);
 
 
-      Quiz quiz = Quiz(document['id'], document['quizName'], questions,waitingPlayers);
+      Quiz quiz = Quiz(document.id, document['quizName'], questions,waitingPlayers, document['imagePath']);
       quizs.add(quiz);
 
     }
