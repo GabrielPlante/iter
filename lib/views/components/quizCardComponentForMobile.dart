@@ -36,7 +36,7 @@ class _QuizCardComponentForMobileState extends State<QuizCardComponentForMobile>
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(30.0),
               image: DecorationImage(
-                  image: AssetImage("assets/images/${widget.quiz.imagePath}.jpg"),
+                  image: AssetImage("assets/images/back/${widget.quiz.imagePath}.jpg"),
                   fit: BoxFit.cover),
             ),
             padding: EdgeInsets.all(10),
@@ -113,7 +113,7 @@ class _QuizCardComponentForMobileState extends State<QuizCardComponentForMobile>
                             return Center(child: CircularProgressIndicator());
                           }
                           var userDocument = snapshot.data;
-                          if (userDocument["waitingPlayers"].length >= 2 &&
+                          if (userDocument["waitingPlayers"].length == 2 &&
                               widget.quizJoined &&
                               snapshot.connectionState == ConnectionState.active) {
                             SchedulerBinding.instance.addPostFrameCallback((_) {

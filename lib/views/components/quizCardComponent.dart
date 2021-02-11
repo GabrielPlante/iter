@@ -38,7 +38,7 @@ class _QuizCardComponentState extends State<QuizCardComponent> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(30.0),
           image: DecorationImage(
-              image: AssetImage("assets/images/${widget.quiz.imagePath}.jpg"),
+              image: AssetImage("assets/images/back/${widget.quiz.imagePath}.jpg"),
               fit: BoxFit.cover),
         ),
         padding: EdgeInsets.all(10),

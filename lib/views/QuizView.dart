@@ -36,14 +36,16 @@ class QuizViewState extends State<QuizView> {
 
 
   Widget initQuizComponents(int index) {
-    String displayAvancement = " Question ${index + 1} / ${widget.quiz.questions.length} ";
-    Question currentQuestion;
-    for(Question q in questions){
-      if(q.id == currentGame.questionsOrder[index]){
-        currentQuestion = q;
+    if(index < questions.length){
+      String displayAvancement = " Question ${index + 1} / ${widget.quiz.questions.length} ";
+      Question currentQuestion;
+      for(Question q in questions){
+        if(q.id == currentGame.questionsOrder[index]){
+          currentQuestion = q;
+        }
       }
+      return QuizComponent(question: currentQuestion, parent: this, isSelectedItem: isSelectedItem, displayAvancement: displayAvancement, imagePath: widget.quiz.imagePath);
     }
-    if(index < questions.length) return QuizComponent(question: currentQuestion, parent: this, isSelectedItem: isSelectedItem, displayAvancement: displayAvancement);
     else return EndQuizComponent();
   }
   @override
@@ -91,16 +93,17 @@ class QuizViewState extends State<QuizView> {
     if(currentGame == null) return CircularProgressIndicator();
     /// In order to verify what the actual fuck is going from the database to your models, shit happens my friend. Sometimes I just don't know what is going on so remember, print(wtf) at every line to know which one is fucking with you.
     //if(currentGame != null) verifyGameByPrintingData();
+    if(index >= questions.length) return EndQuizComponent();
     return Scaffold(
       appBar: AppBar(title: Text(widget.quiz.quizName),
         actions: [
           Visibility(
               visible: finishQuestion && playerAnsweredQuestion,
               child: Container(
-                color: Colors.green,
+                color: index+1 != questions.length ? Colors.green : Colors.red,
                 child: FlatButton(
                   onPressed: () {
-                    updateAvailableQuestionMap(questions[index+1].difficulty);
+                    if(index + 1 < questions.length) updateAvailableQuestionMap(questions[index+1].difficulty);
                     setState( () {
                       index++;
                       finishQuestion = false;
@@ -110,8 +113,10 @@ class QuizViewState extends State<QuizView> {
                   },
                     child: Row(
                         children: [
-                          Text(" Question suivante ", style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold)),
-                          Icon(Icons.navigate_next)
+                          Text(index+1 == questions.length ? " Fin du quiz" : " Question suivante ", style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold)),
+                          Visibility(
+                            visible: index+1 != questions.length,
+                              child: Icon(Icons.navigate_next))
                       ]
                   ),
                 ),
@@ -121,80 +126,85 @@ class QuizViewState extends State<QuizView> {
       ),
       body:
 
-      Column( children: [
-        SizedBox(height: MediaQuery.of(context).size.height / 20),
-        initQuizComponents(index),
-        SizedBox(height: MediaQuery.of(context).size.height / 15),
-        StreamBuilder<DocumentSnapshot>(
-            stream: FirebaseFirestore.instance.collection('Game').doc(currentGame.id).snapshots(),
-            builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-              if (!snapshot.hasData) {
-                return Center(child: CircularProgressIndicator());
-              }
+      Container(
+        decoration: BoxDecoration(
+            image: DecorationImage(image: AssetImage("assets/images/back/${widget.quiz.imagePath}.jpg"), fit: BoxFit.cover)
+        ),
+        child: Column( children: [
+          SizedBox(height: MediaQuery.of(context).size.height / 20),
+          initQuizComponents(index),
+          SizedBox(height: MediaQuery.of(context).size.height / 15),
+          StreamBuilder<DocumentSnapshot>(
+              stream: FirebaseFirestore.instance.collection('Game').doc(currentGame.id).snapshots(),
+              builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+                if (!snapshot.hasData) {
+                  return Center(child: CircularProgressIndicator());
+                }
 
-              DocumentSnapshot document = snapshot.data;
-              currentGame = databaseService.updateGame(document);
-              Map<int,bool> otherPlayersMoves = Map();
-              String questionId = currentGame.questionsOrder[index];
-              List<bool> avancementList = currentGame.avancementByQuestionMap[questionId];
-              for(int i = 0; i < avancementList.length; i++){
-                if(i != indexOfPlayer) {
-                  otherPlayersMoves[i] = avancementList[i];
+                DocumentSnapshot document = snapshot.data;
+                currentGame = databaseService.updateGame(document);
+                Map<int,bool> otherPlayersMoves = Map();
+                String questionId = currentGame.questionsOrder[index];
+                List<bool> avancementList = currentGame.avancementByQuestionMap[questionId];
+                for(int i = 0; i < avancementList.length; i++){
+                  if(i != indexOfPlayer) {
+                    otherPlayersMoves[i] = avancementList[i];
+                  }
+                }
+                if(!MyApp.isWebDevice && currentGame.jumpQuestion) jumpQuestionForPatient();
+                if(otherPlayersMoves.keys == null || otherPlayersMoves.keys.isEmpty) {
+                  return LoadingWidget();
+                } else {
+                  asyncTerminateQuestion(otherPlayersMoves.values.toList()[0]);
+                  return Expanded(
+                    child: Container(
+                      height: MediaQuery.of(context).size.height / 8,
+                      child:ListView.builder(
+                        itemCount: otherPlayersMoves.keys.length,
+                        itemBuilder: (context, indexOfDisplayer) {
+                          return ViewAnswerFromPlayer(playerName: currentGame.playersId[otherPlayersMoves.keys.toList()[indexOfDisplayer]],hasAswered: otherPlayersMoves[otherPlayersMoves.keys.toList()[indexOfDisplayer]], parent: this);
+                          },
+                      ),
+                    ),
+                  );
                 }
               }
-              if(!MyApp.isWebDevice && currentGame.jumpQuestion) jumpQuestionForPatient();
-              if(otherPlayersMoves.keys == null || otherPlayersMoves.keys.isEmpty) {
-                return LoadingWidget();
-              } else {
-                asyncTerminateQuestion(otherPlayersMoves.values.toList()[0]);
-                return Expanded(
-                  child: Container(
-                    height: MediaQuery.of(context).size.height / 8,
-                    child:ListView.builder(
-                      itemCount: otherPlayersMoves.keys.length,
-                      itemBuilder: (context, indexOfDisplayer) {
-                        return ViewAnswerFromPlayer(playerName: currentGame.playersId[otherPlayersMoves.keys.toList()[indexOfDisplayer]],hasAswered: otherPlayersMoves[otherPlayersMoves.keys.toList()[indexOfDisplayer]], parent: this);
-                        },
-                    ),
-                  ),
-                );
-              }
-            }
-        ),
-        MyApp.isWebDevice ?
-        SlidingUpPanel(
-          controller: panelController,
-          minHeight: MediaQuery.of(context).size.height / 30,
-          maxHeight: MediaQuery.of(context).size.height / 7.5,
-          collapsed: GestureDetector(
-            onTap: () => panelController.open(),
-            child: Container(
-                height: MediaQuery.of(context).size.height / 30,
-                color: Theme.of(context).backgroundColor,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.keyboard_arrow_up),
-                    Icon(Icons.keyboard_arrow_up),
-                    Icon(Icons.keyboard_arrow_up),
-                    SizedBox(width: 30.0),
-                    Center(child: Text("Choisir la prochaine question", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
-                    SizedBox(width: 30.0),
-                    Icon(Icons.keyboard_arrow_up),
-                    Icon(Icons.keyboard_arrow_up),
-                    Icon(Icons.keyboard_arrow_up),
-                  ]
-                )
-            ),
           ),
-          panel: Column(
-            children: [
-              CustomCloserPanel(parent: this),
-              ChooseNextQuestionPanel(availableQuestionsNumberMap: availableQuestionsNumberMap, selectedNextDifficulty: selectedDifficulty, quizViewState: this)
-            ],
-          )
-        ) : Container(),
-      ]),
+          MyApp.isWebDevice ?
+          SlidingUpPanel(
+            controller: panelController,
+            minHeight: MediaQuery.of(context).size.height / 30,
+            maxHeight: MediaQuery.of(context).size.height / 7.5,
+            collapsed: GestureDetector(
+              onTap: () => panelController.open(),
+              child: Container(
+                  height: MediaQuery.of(context).size.height / 30,
+                  color: Theme.of(context).backgroundColor,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.keyboard_arrow_up),
+                      Icon(Icons.keyboard_arrow_up),
+                      Icon(Icons.keyboard_arrow_up),
+                      SizedBox(width: 30.0),
+                      Center(child: Text("Choisir la prochaine question", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
+                      SizedBox(width: 30.0),
+                      Icon(Icons.keyboard_arrow_up),
+                      Icon(Icons.keyboard_arrow_up),
+                      Icon(Icons.keyboard_arrow_up),
+                    ]
+                  )
+              ),
+            ),
+            panel: Column(
+              children: [
+                CustomCloserPanel(parent: this),
+                ChooseNextQuestionPanel(availableQuestionsNumberMap: availableQuestionsNumberMap, selectedNextDifficulty: selectedDifficulty, quizViewState: this)
+              ],
+            )
+          ) : Container(),
+        ]),
+      ),
       );
   }
 
@@ -285,7 +295,7 @@ class QuizViewState extends State<QuizView> {
   }
 
   Future asyncTerminateQuestion(bool updateMove) async {
-    if(updateMove && !playerAnsweredQuestion){;
+    if(updateMove && !playerAnsweredQuestion){
       Future.delayed(
           const Duration(seconds: 2),
               () {
@@ -342,8 +352,9 @@ class QuizComponent extends StatelessWidget {
   final QuizViewState parent;
   final List<bool> isSelectedItem;
   final String displayAvancement;
+  final String imagePath;
 
-  QuizComponent({Key key, this.question, this.parent, this.isSelectedItem, this.displayAvancement }) : super(key : key);
+  QuizComponent({Key key, this.question, this.parent, this.isSelectedItem, this.displayAvancement, this.imagePath }) : super(key : key);
 
   @override
   Widget build(BuildContext context) {
@@ -351,12 +362,18 @@ class QuizComponent extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
             children: [
-          Center(
-              child: FittedBox(
-                fit: BoxFit.cover,
-                child: Text(  displayAvancement + " : ${question.questionName}",
-                    style: TextStyle(fontSize: 200, fontWeight: FontWeight.bold)),
-              )),
+          Container(
+            height: MediaQuery.of(context).size.height / 10,
+            decoration: BoxDecoration(
+                color: question.difficulty.color,
+            ),
+            child: Center(
+                child: FittedBox(
+                  fit: BoxFit.cover,
+                  child: Text(  displayAvancement + " : ${question.questionName}",
+                      style: TextStyle(fontSize: 200, fontWeight: FontWeight.bold)),
+                )),
+          ),
           SizedBox(height: MediaQuery.of(context).size.height / 15),
           Column(
             children: [
@@ -523,7 +540,7 @@ class ViewAnswerFromPlayer extends StatelessWidget {
             SizedBox(width: MyApp.isWebDevice ? 20 : 0),
             Spacer(),
             Visibility(
-              visible: MyApp.isWebDevice,
+              visible: MyApp.isWebDevice && !hasAswered,
               child: Padding(
                 padding: EdgeInsets.only(right: MediaQuery.of(context).size.width / 8),
                 child: Container(
