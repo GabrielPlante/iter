@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:iter/models/quiz.dart';
+import 'package:iter/models/user.dart';
 import 'package:iter/services/databaseService.dart';
 import 'package:iter/views/components/quizCardComponent.dart';
 
 class WebMainPage extends StatefulWidget {
-  static String userId = "Franck";
+  static String userName = "Franck";
+  static User user;
   @override
   WebMainPageState createState() => WebMainPageState();
 }
@@ -25,6 +27,7 @@ class WebMainPageState extends State<WebMainPage> {
 
   @override
   void initState() {
+    initUser();
     initQuizs();
     super.initState();
   }
@@ -45,6 +48,18 @@ class WebMainPageState extends State<WebMainPage> {
     );
   }
 
+  void initUser() async {
+    List<User> result = await _databaseService.allUser;
+    for(User userResult in result) {
+      if(userResult.name == WebMainPage.userName) {
+        setState(() {
+          WebMainPage.user = userResult;
+        });
+      }
+    }
+
+  }
+
   void initQuizs() async {
     List<Quiz> result = await  _databaseService.allQuiz;
     setState(() {
@@ -55,13 +70,13 @@ class WebMainPageState extends State<WebMainPage> {
 
   void updateQuizChoice(String quizId) async {
     if(quizChosen == quizId){
-      await _databaseService.removePlayer(quizId, WebMainPage.userId);
+      await _databaseService.removePlayer(quizId, WebMainPage.user.id);
       setState(() {
         quizChosen = '';
       });
     } else {
-      if(quizChosen != '') await _databaseService.removePlayer(quizChosen, WebMainPage.userId);
-      await _databaseService.addPlayer(quizId, WebMainPage.userId);
+      if(quizChosen != '') await _databaseService.removePlayer(quizChosen, WebMainPage.user.id);
+      await _databaseService.addPlayer(quizId, WebMainPage.user.id);
       setState(() {
         quizChosen = quizId;
       });

@@ -105,23 +105,36 @@ class DatabaseService {
 
     for(DocumentSnapshot document in userQueries.docs) {
 
-      Map<String, List<int>> scoresByQuizMap = Map();
-      if(document['scoresByQuizMap'] != null) {
-        document['scoreByQuizMap'].forEach((key, value) {
-          List<int> scores = List.castFrom(document['scoresByQuizMap'][key] as List ?? []);
-          scoresByQuizMap[key] = scores;
-        });
-      }
+
+      String currentGameId;
+      if(document['currentGameId'] == null) currentGameId = "none";
+      else currentGameId = document['currentGameId'];
+
+      int fontSize = document['fontSize'];
 
 
-      User user = User(document.id, document["name"], document["isModerator"],document["fontSize"], document["isLightTheme"], scoresByQuizMap);
+      User user = User(document.id, document["name"], document["isModerator"], fontSize.toDouble(), document["isLightTheme"], currentGameId);
 
       users.add(user);
     }
 
     return users;
+  }
+
+  Future<User> updateUser(String userId) async {
+    DocumentSnapshot document = await userCollection.doc(userId).get();
 
 
+    String currentGameId;
+    if(document['currentGameId'] == null) currentGameId = "none";
+    else currentGameId = document['currentGameId'];
+
+    int fontSize = document["fontSize"];
+
+
+    User user = User(document.id, document["name"], document["isModerator"],fontSize.toDouble(), document["isLightTheme"], currentGameId);
+
+    return user;
   }
 
   Future<String> createGame(String quizId, List<String> playersId, List<Question> questions) async {
@@ -153,6 +166,11 @@ class DatabaseService {
       'questionsOrder' : questionsOrder,
       'jumpQuestion' : false
     });
+
+    for(String playerId in playersId) {
+      print("$playerId got his currentGame updated" );
+      await userCollection.doc(playerId).update({ "currentGameId" : docRef.id });
+    }
 
     return docRef.id;
   }

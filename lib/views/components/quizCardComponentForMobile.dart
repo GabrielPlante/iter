@@ -137,14 +137,14 @@ class _QuizCardComponentForMobileState extends State<QuizCardComponentForMobile>
                                   child: SizedBox(
                                       width : 30,
                                       height : 30,
-                                      child: Image.asset(playersId == null || playersId.length == 0 ? "assets/images/profil.jpg" : "assets/images/${returnImagePath(playersId[0])}.jpg"))),
+                                      child: Image.asset(playersId == null || playersId.length == 0 ? "assets/images/profil.jpg" : "assets/images/${playersId[0]}.jpg"))),
                               Text(" et ", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(100),
                                 child: SizedBox(
                                     width : 30,
                                     height : 30,
-                                    child: Image.asset(playersId == null || playersId.length < 2 ? "assets/images/profil.jpg" : "assets/images/${returnImagePath(playersId[1])}.jpg")),
+                                    child: Image.asset(playersId == null || playersId.length < 2 ? "assets/images/profil.jpg" : "assets/images/${playersId[1]}.jpg")),
                               )
                             ],
                           );
@@ -179,18 +179,6 @@ class _QuizCardComponentForMobileState extends State<QuizCardComponentForMobile>
     }
     if (average >= 3) {
       return Difficulty.INSANE;
-    }
-  }
-
-  String returnImagePath(String player) {
-    if(player == "Amelie") {
-      return "amelie";
-    }
-    if(player == "Franck") {
-      return "franck";
-    }
-    else {
-      return "profil";
     }
   }
 }

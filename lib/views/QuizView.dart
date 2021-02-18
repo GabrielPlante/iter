@@ -5,6 +5,7 @@ import 'package:iter/main.dart';
 import 'package:iter/models/game.dart';
 import 'package:iter/models/question.dart';
 import 'package:iter/models/quiz.dart';
+import 'package:iter/models/user.dart';
 import 'package:iter/services/databaseService.dart';
 import 'package:iter/views/components/webComponents/chooseNextQuestionPanel.dart';
 import 'package:iter/views/webMainPage.dart';
@@ -22,6 +23,8 @@ class QuizView extends StatefulWidget {
 }
 
 class QuizViewState extends State<QuizView> {
+  bool requestFailed = false;
+  User user;
   List<Question> questions = [];
   Game currentGame;
   DatabaseService databaseService  = DatabaseService();
@@ -61,14 +64,37 @@ class QuizViewState extends State<QuizView> {
       availableQuestionsNumberMap[difficulty] = count;
     }
     availableQuestionsNumberMap[questions[index].difficulty] --;
-    initGame();
+    newInitGame();
     super.initState();
   }
 
-  void initGame() async {
+  void newInitGame() async {
+    bool isWeb = MyApp.isWebDevice;
+
+    if(isWeb){
+      WebMainPage.user = await databaseService.updateUser(WebMainPage.user.id);
+      user = WebMainPage.user;
+      print(user.currentGameId);
+    } else {
+      MobileMainPage.user = await databaseService.updateUser(MobileMainPage.user.id);
+      user = MobileMainPage.user;
+      print(user.currentGameId);
+    }
+
+    Game result = await databaseService.getGameById(user.currentGameId);
+
+    setState(() {
+      currentGame = result;
+      indexOfPlayer = currentGame.playersId.indexOf(user.id);
+    });
+
+  }
+
+  /*void initGame() async {
     bool isWeb = MyApp.isWebDevice;
     DateTime dateNow = DateTime.now();
     List<Game> result = await databaseService.allGame;
+    if(result == null || result.isEmpty) requestFailed = true;
     for(Game game in result) {
       if(isWeb){
         if(game.playersId.contains(WebMainPage.userId) && dateNow.difference(game.dateOfGame).inMinutes <= 1 ) {
@@ -86,14 +112,22 @@ class QuizViewState extends State<QuizView> {
         }
       }
     }
-  }
+  } */
 
   @override
   Widget build(BuildContext context) {
-    if(currentGame == null) return CircularProgressIndicator();
+    if(currentGame == null) {
+      if(requestFailed){
+        print("No Game find... Searching...");
+        newInitGame();
+      }
+      return CircularProgressIndicator();
+    }
     /// In order to verify what the actual fuck is going from the database to your models, shit happens my friend. Sometimes I just don't know what is going on so remember, print(wtf) at every line to know which one is fucking with you.
     //if(currentGame != null) verifyGameByPrintingData();
-    if(index >= questions.length) return EndQuizComponent();
+    if(index >= questions.length) {
+      return EndQuizComponent();
+    }
     return Scaffold(
       appBar: AppBar(title: Text(widget.quiz.quizName),
         actions: [
@@ -526,8 +560,7 @@ class ViewAnswerFromPlayer extends StatelessWidget {
               child: SizedBox(
                   height: MyApp.isWebDevice ? MediaQuery.of(context).size.height / 15 : 50,
                   width: MyApp.isWebDevice ? MediaQuery.of(context).size.width / 15 : 50,
-                  child: Image.asset(
-                    playerName == "Franck" ? "assets/images/franck.jpg" : "assets/images/amelie.jpg",
+                  child: Image.asset( "assets/images/$playerName.jpg",
                     fit: BoxFit.fill,
                   ),
 
@@ -535,7 +568,15 @@ class ViewAnswerFromPlayer extends StatelessWidget {
             ),
             SizedBox(width: 10.0),
             Center(
-                child: Text(hasAswered ? "$playerName a répondu à la question ! ": "$playerName n'a pas encore répondu à la question", style: TextStyle(fontWeight: FontWeight.bold)),
+                child:  playerName == "ACEceNhYQpHXAdSciepN" ?
+                Text(
+                    hasAswered ? "Franck a répondu à la question ! ": "Franck n'a pas encore répondu à la question",
+                    style: TextStyle(fontWeight: FontWeight.bold)
+                ) :
+                Text(
+                    hasAswered ? "Amélie a répondu à la question ! ": "Amélie n'a pas encore répondu à la question",
+                    style: TextStyle(fontWeight: FontWeight.bold)
+                ),
             ),
             SizedBox(width: MyApp.isWebDevice ? 20 : 0),
             Spacer(),
