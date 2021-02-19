@@ -18,14 +18,6 @@ class MobileMainPageState extends State<MobileMainPage> {
   List<Quiz> quizs = [];
   String quizChosen = '';
 
-  /*@override
-  void dispose() {
-    super.dispose();
-    if (quizChosen != ''){
-        _databaseService.removePlayer(quizChosen);
-      }
-  }*/
-
   @override
   void initState() {
     initUser();
@@ -36,7 +28,9 @@ class MobileMainPageState extends State<MobileMainPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(title: Text('Menu Principal')),
-        body: quizs.isEmpty ? Text(" Nothing") :
+        body: quizs.isEmpty ?
+        Center(child: CircularProgressIndicator())
+            :
         ListView.builder(
             itemCount: quizs.length,
             itemBuilder: (context, index) {
@@ -48,7 +42,7 @@ class MobileMainPageState extends State<MobileMainPage> {
   void initUser() async {
     List<User> result = await _databaseService.allUser;
     for(User userResult in result) {
-      if(userResult.isModerator == (MobileLoginPageState.status == 1)) {
+      if(userResult.isModerator == (MobileLoginPageState.status == 1) && !userResult.isInterfaceWeb) {
         setState(() {
           MobileMainPage.user = userResult;
           print(MobileMainPage.user.name);

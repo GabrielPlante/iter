@@ -113,7 +113,7 @@ class DatabaseService {
       int fontSize = document['fontSize'];
 
 
-      User user = User(document.id, document["name"], document["isModerator"], fontSize.toDouble(), document["isLightTheme"], currentGameId);
+      User user = User(document.id, document["name"], document["isModerator"], fontSize.toDouble(), document["isLightTheme"], currentGameId, document['isInterfaceWeb']);
 
       users.add(user);
     }
@@ -132,7 +132,7 @@ class DatabaseService {
     int fontSize = document["fontSize"];
 
 
-    User user = User(document.id, document["name"], document["isModerator"],fontSize.toDouble(), document["isLightTheme"], currentGameId);
+    User user = User(document.id, document["name"], document["isModerator"],fontSize.toDouble(), document["isLightTheme"], currentGameId, document['isInterfaceWeb']);
 
     return user;
   }
