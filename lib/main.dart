@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:iter/views/components/mobileLoginPage.dart';
 import 'package:iter/views/mobileMainPage.dart';
 import 'package:iter/views/webMainPage.dart';
 
@@ -42,7 +43,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return withMaterialApp(
         Center(
-            child: isWebDevice ? WebMainPage() : MobileMainPage(),
+            child: isWebDevice ? WebMainPage() : MobileLoginPageState.status == 0 ? MobileLoginPage() : MobileMainPage(),
             /// if you want to switch to the example, replace the previous line by the next one.
             // child: MainView();
         )
