@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:iter/models/quiz.dart';
 import 'package:iter/models/user.dart';
 import 'package:iter/services/databaseService.dart';
+import 'package:iter/views/components/mobileLoginPage.dart';
 import 'components/quizCardComponentForMobile.dart';
 
 class MobileMainPage extends StatefulWidget {
@@ -47,7 +48,7 @@ class MobileMainPageState extends State<MobileMainPage> {
   void initUser() async {
     List<User> result = await _databaseService.allUser;
     for(User userResult in result) {
-      if(userResult.name == MobileMainPage.userName) {
+      if(userResult.isModerator == (MobileLoginPageState.status == 1)) {
         setState(() {
           MobileMainPage.user = userResult;
           print(MobileMainPage.user.name);
