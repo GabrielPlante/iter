@@ -61,6 +61,14 @@ class DatabaseService {
     return quizs;
   }
 
+  Quiz updateQuizPlayers(Quiz quiz, DocumentSnapshot doc) {
+    List<String> waitingPlayers = List.castFrom(doc['waitingPlayers'] as List ?? []);
+
+    quiz.waitingPlayers = waitingPlayers;
+
+    return quiz;
+  }
+
   Future<List<Game>> get allGame async {
     QuerySnapshot gameQueries = await gameCollection.get();
 

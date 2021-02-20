@@ -94,8 +94,8 @@ class _QuizCardComponentState extends State<QuizCardComponent> {
                       borderRadius: BorderRadius.circular(30)
                   ),
                   child: FlatButton(
-                      onPressed: () =>
-                          widget.parent.updateQuizChoice(widget.quiz.id),
+                      onPressed: () => {},
+                          //widget.parent.updateQuizChoice(widget.quiz.id),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
