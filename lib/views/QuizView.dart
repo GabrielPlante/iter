@@ -7,6 +7,7 @@ import 'package:iter/models/question.dart';
 import 'package:iter/models/quiz.dart';
 import 'package:iter/models/user.dart';
 import 'package:iter/services/databaseService.dart';
+import 'package:iter/views/components/mobileLoginPage.dart';
 import 'package:iter/views/components/webComponents/chooseNextQuestionPanel.dart';
 import 'package:iter/views/webMainPage.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
@@ -185,7 +186,7 @@ class QuizViewState extends State<QuizView> {
                     otherPlayersMoves[i] = avancementList[i];
                   }
                 }
-                if(!MyApp.isWebDevice && currentGame.jumpQuestion) jumpQuestionForPatient();
+                if(MobileLoginPageState.status == 2 && currentGame.jumpQuestion) jumpQuestionForPatient();
                 if(otherPlayersMoves.keys == null || otherPlayersMoves.keys.isEmpty) {
                   return LoadingWidget();
                 } else {
@@ -204,7 +205,7 @@ class QuizViewState extends State<QuizView> {
                 }
               }
           ),
-          MyApp.isWebDevice ?
+          MobileLoginPageState.status == 1 ?
           SlidingUpPanel(
             controller: panelController,
             minHeight: MediaQuery.of(context).size.height / 30,
@@ -581,7 +582,7 @@ class ViewAnswerFromPlayer extends StatelessWidget {
             SizedBox(width: MyApp.isWebDevice ? 20 : 0),
             Spacer(),
             Visibility(
-              visible: MyApp.isWebDevice && !hasAswered,
+              visible: MobileLoginPageState.status == 1 && !hasAswered,
               child: Padding(
                 padding: EdgeInsets.only(right: MediaQuery.of(context).size.width / 8),
                 child: Container(
