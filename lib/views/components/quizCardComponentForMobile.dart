@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:iter/models/question.dart';
 import 'package:iter/models/quiz.dart';
+import 'package:iter/views/components/mobileLoginPage.dart';
 import '../QuizView.dart';
 import '../mobileMainPage.dart';
+import 'package:iter/services/databaseService.dart';
 
 class QuizCardComponentForMobile extends StatefulWidget {
   final Quiz quiz;
@@ -17,7 +19,9 @@ class QuizCardComponentForMobile extends StatefulWidget {
   _QuizCardComponentForMobileState createState() => _QuizCardComponentForMobileState();
 }
 
+
 class _QuizCardComponentForMobileState extends State<QuizCardComponentForMobile> {
+  DatabaseService databaseService = DatabaseService();
 
   @override
   Widget build(BuildContext context) {
@@ -116,6 +120,10 @@ class _QuizCardComponentForMobileState extends State<QuizCardComponentForMobile>
                           if (userDocument["waitingPlayers"].length == 2 &&
                               widget.quizJoined &&
                               snapshot.connectionState == ConnectionState.active) {
+                            if (MobileLoginPageState.status == 1){
+                              List<String> playersId = List.castFrom(userDocument['waitingPlayers'] as List ?? []);
+                              adminStartQuiz(playersId);
+                            }
                             SchedulerBinding.instance.addPostFrameCallback((_) {
                               Navigator.of(context).pop();
                               Navigator.push(
@@ -160,6 +168,10 @@ class _QuizCardComponentForMobileState extends State<QuizCardComponentForMobile>
     );
   }
 
+  void adminStartQuiz(List<String> playersId) async {
+    await databaseService.createGame(
+        widget.quiz.id, playersId, widget.quiz.questions);
+  }
 
   Difficulty averageQuizDifficulty() {
     double average = 0;
