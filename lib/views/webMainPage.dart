@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:iter/models/quiz.dart';
 import 'package:iter/models/user.dart';
 import 'package:iter/services/databaseService.dart';
+import 'package:iter/views/quizViewWebDisplayer.dart';
 
 class WebMainPage extends StatefulWidget {
   static User user;
@@ -25,45 +27,71 @@ class WebMainPageState extends State<WebMainPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: quizs.length != 0 && allUser.length != 0 ?
-      Container(
-        width: MediaQuery.of(context).size.width,
-        height: MediaQuery.of(context).size.height,
-        child: StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection('Quiz')
-              .snapshots(),
-          builder: (context, AsyncSnapshot<QuerySnapshot> query) {
-            List<User> playersReady = [];
-            Quiz currentQuiz;
-            if(query.data != null ){
-              for(DocumentSnapshot doc in query.data.docs){
-                int indexOfTheQuiz;
-                for(Quiz quiz in quizs) {
-                  if(quiz.id == doc.id) indexOfTheQuiz = quizs.indexOf(quiz);
+        body: quizs.length != 0 && allUser.length != 0 ?
+        Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage("assets/images/city_wallpaper.jpg"),
+                fit: BoxFit.cover
+            )
+          ),
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height,
+          child: StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection('Quiz')
+                .snapshots(),
+            builder: (context, AsyncSnapshot<QuerySnapshot> query) {
+              List<User> playersReady = [];
+              Quiz currentQuiz;
+              if(query.data != null ){
+                for(DocumentSnapshot doc in query.data.docs){
+                  int indexOfTheQuiz;
+                  for(Quiz quiz in quizs) {
+                    if(quiz.id == doc.id) indexOfTheQuiz = quizs.indexOf(quiz);
+                  }
+                  quizs[indexOfTheQuiz] = _databaseService.updateQuizPlayers(quizs[indexOfTheQuiz], doc);
                 }
-                quizs[indexOfTheQuiz] = _databaseService.updateQuizPlayers(quizs[indexOfTheQuiz], doc);
-              }
 
-              for(Quiz quiz in quizs) {
-                if(quiz.waitingPlayers.length != 0 ) {
-                  currentQuiz = quiz;
-                  for(String userId in currentQuiz.waitingPlayers) {
-                    if(allUser.where((element) => element.id == userId).first != null) {
-                      playersReady.add(allUser.where((element) => element.id == userId).first);
+                for(Quiz quiz in quizs) {
+                  if(quiz.waitingPlayers.length != 0 ) {
+                    currentQuiz = quiz;
+                    for(String userId in currentQuiz.waitingPlayers) {
+                      if(allUser.where((element) => element.id == userId).first != null) {
+                        playersReady.add(allUser.where((element) => element.id == userId).first);
+                      }
                     }
                   }
                 }
               }
-            }
-            if(currentQuiz != null && playersReady.length != 0 ) return BodyWebMainView(quiz: currentQuiz, users: playersReady);
-            else return Container(child: Center(child: Text("Nothing")));
-          },
-        ),
-      )
-          :
-      CircularProgressIndicator(),
-    );
+              if(currentQuiz != null && playersReady.length == 2  && query.connectionState == ConnectionState.active) {
+                SchedulerBinding.instance.addPostFrameCallback((_) {
+                  Navigator.of(context).pop();
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute( builder: (context) => QuizViewWebDisplayer(quiz: currentQuiz, players: playersReady) )
+                  );
+                });
+              }
+
+              if(currentQuiz != null && playersReady.length == 1 ) return BodyWebMainView(quiz: currentQuiz, users: playersReady);
+              else return Container(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Center(
+                        child: Text("Bienvenue sur Assist Quiz", style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold)),
+                      ),
+                      Text("En attente d'un joueur", style: TextStyle(fontSize: 50, fontWeight: FontWeight.normal)),
+                    ]
+                  )
+              );
+            },
+          ),
+        )
+            :
+        CircularProgressIndicator(),
+        );
   }
 
   void initUser() async {
@@ -97,8 +125,6 @@ class BodyWebMainView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print("the quiz is ${quiz.quizName}");
-    for(User user in users) print("with ${user.name}");
     return Container(
       decoration: BoxDecoration(
       ),
@@ -109,7 +135,7 @@ class BodyWebMainView extends StatelessWidget {
           Container(
             margin: EdgeInsets.only(top: 100),
               child: Center(
-                  child: Text(users.length == 2 ? "La partie va commencer ! " : "En attente de joueurs...", style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold)
+                  child: Text(users.length == 2 ? "La partie va commencer ! " : "En attente du 2ème joueur...", style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold)
                   )
               )
           ),
@@ -125,8 +151,8 @@ class BodyWebMainView extends StatelessWidget {
                       ClipRRect(
                         borderRadius: BorderRadius.circular(100),
                         child: SizedBox(
-                          height: MediaQuery.of(context).size.height / 4,
-                          width: MediaQuery.of(context).size.width / 6,
+                          height: 250,
+                          width: 250,
                           child: Image.asset( "assets/images/${users[0].id}.jpg",
                             fit: BoxFit.fill,
                           ),
@@ -152,7 +178,7 @@ class BodyWebMainView extends StatelessWidget {
                     ),
                   ),
                   child: Center(
-                    child: Text( quiz.quizName, style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold) ),
+                    child: Text( quiz.quizName, style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold) ),
                   ),
                 ),
                 Spacer(),
@@ -164,8 +190,8 @@ class BodyWebMainView extends StatelessWidget {
                       ClipRRect(
                         borderRadius: BorderRadius.circular(100),
                         child: SizedBox(
-                          height: MediaQuery.of(context).size.height / 4,
-                          width: MediaQuery.of(context).size.width / 6,
+                          height: 250,
+                          width: 250,
                           child: Image.asset( users.length == 2 ? "assets/images/${users[1].id}.jpg" : "assets/images/profil.jpg",
                             fit: BoxFit.fill,
                           ),

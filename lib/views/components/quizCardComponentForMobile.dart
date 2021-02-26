@@ -192,5 +192,8 @@ class _QuizCardComponentForMobileState extends State<QuizCardComponentForMobile>
     if (average >= 3) {
       return Difficulty.INSANE;
     }
+    else {
+      return Difficulty.EASY;
+    }
   }
 }
