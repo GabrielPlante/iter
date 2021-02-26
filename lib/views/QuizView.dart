@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -33,6 +35,7 @@ class QuizViewState extends State<QuizView> {
   int index = 0;
   int indexOfPlayer = 0;
   List<bool> isSelectedItem = [false, false, false, false];
+  List<bool> isDisabledItem = [false, false, false, false];
   Difficulty selectedDifficulty = Difficulty.EASY;
   Map<Difficulty,int> availableQuestionsNumberMap = Map();
   PanelController panelController = PanelController();
@@ -48,7 +51,7 @@ class QuizViewState extends State<QuizView> {
           currentQuestion = q;
         }
       }
-      return QuizComponent(question: currentQuestion, parent: this, isSelectedItem: isSelectedItem, displayAvancement: displayAvancement, imagePath: widget.quiz.imagePath);
+      return QuizComponent(question: currentQuestion, parent: this, isSelectedItem: isSelectedItem, isDisabledItem: isDisabledItem, displayAvancement: displayAvancement, imagePath: widget.quiz.imagePath);
     }
     else return EndQuizComponent();
   }
@@ -344,14 +347,14 @@ class QuizViewState extends State<QuizView> {
 
   void cheatToNextQuestion() async {
     updateAvailableQuestionMap(questions[index+1].difficulty);
-    nextQuestion(currentGame.questionsOrder[index]);
+    //nextQuestion(currentGame.questionsOrder[index]);
     databaseService.cheatByJumpingQuestion(currentGame.id, true);
-    setState( () {
+    /*setState( () {
       index++;
       finishQuestion = false;
       isSelectedItem = [false, false, false, false];
       playerAnsweredQuestion = false;
-    });
+    });*/
   }
 
   void jumpQuestionForPatient() async {
@@ -360,13 +363,31 @@ class QuizViewState extends State<QuizView> {
         const Duration(seconds: 2),
             () {
           setState(() {
-            nextQuestion(currentGame.questionsOrder[index]);
-            setState( () {
-              index++;
+            //nextQuestion(currentGame.questionsOrder[index]);
+            var numberOfNotSelectedItem = 0;
+            for (int i = 0; i != 4; i++){
+              if (isSelectedItem[i] == false){
+                numberOfNotSelectedItem++;
+              }
+            }
+            if (numberOfNotSelectedItem >= 2) {
+              var random = new Random();
+              var disabledItem = random.nextInt(numberOfNotSelectedItem - 1);
+              var disabledItemId = 0;
+              for (int i = 0; i != disabledItem; i++){
+                if (isDisabledItem[i] == false){
+                  disabledItemId++;
+                }
+              }
+              if (questions[index].answers[disabledItemId] == questions[index].correctAnswer){
+                while(isSelectedItem[++disabledItemId] == true) {}
+              }
+              isDisabledItem[disabledItemId] = true;
+                /*index++;
               finishQuestion = false;
               isSelectedItem = [false, false, false, false];
-              playerAnsweredQuestion = false;
-            });
+              playerAnsweredQuestion = false;*/
+            }
           });
         }
     );
@@ -386,10 +407,11 @@ class QuizComponent extends StatelessWidget {
   final Question question;
   final QuizViewState parent;
   final List<bool> isSelectedItem;
+  final List<bool> isDisabledItem;
   final String displayAvancement;
   final String imagePath;
 
-  QuizComponent({Key key, this.question, this.parent, this.isSelectedItem, this.displayAvancement, this.imagePath }) : super(key : key);
+  QuizComponent({Key key, this.question, this.parent, this.isSelectedItem, this.isDisabledItem, this.displayAvancement, this.imagePath }) : super(key : key);
 
   @override
   Widget build(BuildContext context) {
@@ -415,33 +437,39 @@ class QuizComponent extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  FlatButton( onPressed: () {
-                    selectedAndVerifyAnswer(question.answers[0],0);
-                  },
-                    height: MediaQuery.of(context).size.height / 4,
-                    minWidth: MediaQuery.of(context).size.width / 3,
-                    color: isSelectedItem[0] && question.correctAnswer == question.answers[0] ? Colors.green : isSelectedItem[0] ? Colors.red : Theme.of(context).backgroundColor,
-                    disabledColor: Colors.grey,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
+                  Opacity(
+                    opacity: isDisabledItem[0] ? 0 : 1,
+                    child: FlatButton( onPressed: () {
+                      selectedAndVerifyAnswer(question.answers[0],0);
+                    },
+                      height: MediaQuery.of(context).size.height / 4,
+                      minWidth: MediaQuery.of(context).size.width / 3,
+                      color: isSelectedItem[0] && question.correctAnswer == question.answers[0] ? Colors.green : isSelectedItem[0] ? Colors.red : Theme.of(context).backgroundColor,
+                      disabledColor: Colors.grey,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                      ),
+                      hoverColor:isSelectedItem[0] && question.correctAnswer == question.answers[0] ? Colors.green : isSelectedItem[0] ? Colors.red : Colors.blue,
+                      child:
+                      Text(question.answers[0], style: TextStyle(fontSize: 20)),
                     ),
-                    hoverColor:isSelectedItem[0] && question.correctAnswer == question.answers[0] ? Colors.green : isSelectedItem[0] ? Colors.red : Colors.blue,
-                    child:
-                    Text(question.answers[0], style: TextStyle(fontSize: 20)),
                   ),
                   SizedBox(width: 25),
-                  FlatButton(
-                    onPressed: () {
-                      selectedAndVerifyAnswer(question.answers[1],1);
-                    },
-                    height: MediaQuery.of(context).size.height / 4,
-                    minWidth: MediaQuery.of(context).size.width / 3,
-                    color: isSelectedItem[1] && question.correctAnswer == question.answers[1] ? Colors.green : isSelectedItem[1] ? Colors.red : Theme.of(context).backgroundColor,
-                    disabledColor: Colors.grey,
-                    hoverColor:isSelectedItem[1] && question.correctAnswer == question.answers[1] ? Colors.green : isSelectedItem[1] ? Colors.red : Colors.blue,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15)),
-                    child: Text(question.answers[1], style: TextStyle(fontSize: 20)),
+                  Opacity(
+                    opacity: isDisabledItem[1] ? 0 : 1,
+                    child: FlatButton(
+                      onPressed: () {
+                        selectedAndVerifyAnswer(question.answers[1],1);
+                      },
+                      height: MediaQuery.of(context).size.height / 4,
+                      minWidth: MediaQuery.of(context).size.width / 3,
+                      color: isSelectedItem[1] && question.correctAnswer == question.answers[1] ? Colors.green : isSelectedItem[1] ? Colors.red : Theme.of(context).backgroundColor,
+                      disabledColor: Colors.grey,
+                      hoverColor:isSelectedItem[1] && question.correctAnswer == question.answers[1] ? Colors.green : isSelectedItem[1] ? Colors.red : Colors.blue,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15)),
+                      child: Text(question.answers[1], style: TextStyle(fontSize: 20)),
+                    ),
                   ),
                 ],
               ),
@@ -449,34 +477,40 @@ class QuizComponent extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  FlatButton(
-                    onPressed: () {
-                      selectedAndVerifyAnswer(question.answers[3],2);
-                    },
-                    height: MediaQuery.of(context).size.height / 4,
-                    minWidth: MediaQuery.of(context).size.width / 3,
-                    color: isSelectedItem[2] && question.correctAnswer == question.answers[3] ? Colors.green : isSelectedItem[2] ? Colors.red : Theme.of(context).backgroundColor,
-                    disabledColor: Colors.grey,
-                    hoverColor: isSelectedItem[2] && question.correctAnswer == question.answers[3] ? Colors.green : isSelectedItem[2] ? Colors.red : Colors.blue,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15)),
-                    child:
-                    Text(question.answers[3], style: TextStyle(fontSize: 20)),
+                  Opacity(
+                    opacity: isDisabledItem[2] ? 0 : 1,
+                    child: FlatButton(
+                      onPressed: () {
+                        selectedAndVerifyAnswer(question.answers[3],2);
+                      },
+                      height: MediaQuery.of(context).size.height / 4,
+                      minWidth: MediaQuery.of(context).size.width / 3,
+                      color: isSelectedItem[2] && question.correctAnswer == question.answers[3] ? Colors.green : isSelectedItem[2] ? Colors.red : Theme.of(context).backgroundColor,
+                      disabledColor: Colors.grey,
+                      hoverColor: isSelectedItem[2] && question.correctAnswer == question.answers[3] ? Colors.green : isSelectedItem[2] ? Colors.red : Colors.blue,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15)),
+                      child:
+                      Text(question.answers[3], style: TextStyle(fontSize: 20)),
+                    ),
                   ),
                   SizedBox(width: 25),
-                  FlatButton(
-                    onPressed: () {
-                      selectedAndVerifyAnswer(question.answers[2],3);
-                    },
-                    height: MediaQuery.of(context).size.height / 4,
-                    minWidth: MediaQuery.of(context).size.width / 3,
-                    color: isSelectedItem[3] && question.correctAnswer == question.answers[2] ? Colors.green : isSelectedItem[3] ? Colors.red : Theme.of(context).backgroundColor,
-                    disabledColor: Colors.grey,
-                    hoverColor: isSelectedItem[3] && question.correctAnswer == question.answers[2] ? Colors.green : isSelectedItem[3] ? Colors.red : Colors.blue,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15)),
-                    child:
-                    Text(question.answers[2], style: TextStyle(fontSize: 20)),
+                  Opacity(
+                    opacity: isDisabledItem[3] ? 0 : 1,
+                    child: FlatButton(
+                      onPressed: () {
+                        selectedAndVerifyAnswer(question.answers[2],3);
+                      },
+                      height: MediaQuery.of(context).size.height / 4,
+                      minWidth: MediaQuery.of(context).size.width / 3,
+                      color: isSelectedItem[3] && question.correctAnswer == question.answers[2] ? Colors.green : isSelectedItem[3] ? Colors.red : Theme.of(context).backgroundColor,
+                      disabledColor: Colors.grey,
+                      hoverColor: isSelectedItem[3] && question.correctAnswer == question.answers[2] ? Colors.green : isSelectedItem[3] ? Colors.red : Colors.blue,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15)),
+                      child:
+                      Text(question.answers[2], style: TextStyle(fontSize: 20)),
+                    ),
                   ),
                 ],
               )
@@ -594,7 +628,7 @@ class ViewAnswerFromPlayer extends StatelessWidget {
                   height: MediaQuery.of(context).size.height / 15,
                   child: FlatButton(
                     onPressed: () => jumpToNextQuestion(),
-                    child: Text("Sauter la question"),
+                    child: Text("Supprimer une réponse"),
                   ),
                 ),
               ),
