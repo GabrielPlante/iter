@@ -61,6 +61,14 @@ class DatabaseService {
     return quizs;
   }
 
+  Quiz updateQuizPlayers(Quiz quiz, DocumentSnapshot doc) {
+    List<String> waitingPlayers = List.castFrom(doc['waitingPlayers'] as List ?? []);
+
+    quiz.waitingPlayers = waitingPlayers;
+
+    return quiz;
+  }
+
   Future<List<Game>> get allGame async {
     QuerySnapshot gameQueries = await gameCollection.get();
 
@@ -89,7 +97,9 @@ class DatabaseService {
         });
       }
 
-      Game game = Game.AlreadyExisting(document.id, document['quizId'], dateOfGame, playersId, avancementByQuestionMap, scoreByPlayerMap, questionsOrder, document['jumpQuestion']);
+      int indexOfQuestion = document["indexOfQuestion"];
+
+      Game game = Game.AlreadyExisting(document.id, indexOfQuestion, document['quizId'], dateOfGame, playersId, avancementByQuestionMap, scoreByPlayerMap, questionsOrder, document['jumpQuestion']);
 
       games.add(game);
     }
@@ -159,6 +169,7 @@ class DatabaseService {
 
     DocumentReference docRef = await gameCollection.add({
       'quizId' : quizId,
+      'indexOfQuestion' : 0,
       'playersId' : playersId,
       'dateOfGame' : dateOfGame,
       'avancementByQuestionMap' : avancementByQuestionMap,
@@ -168,9 +179,10 @@ class DatabaseService {
     });
 
     for(String playerId in playersId) {
-      print("$playerId got his currentGame updated" );
       await userCollection.doc(playerId).update({ "currentGameId" : docRef.id });
     }
+
+    await userCollection.doc("FgtfpFWMVs4VTHahPd1o").update({ "currentGameId" : docRef.id });
 
     return docRef.id;
   }
@@ -199,9 +211,10 @@ class DatabaseService {
     }
 
     bool jumpQuestion = document["jumpQuestion"];
+    int indexOfQuestion = document["indexOfQuestion"];
 
 
-    Game game = Game.AlreadyExisting(document.id, document['quizId'], dateOfGame, playersId, avancementByQuestionMap, scoreByPlayerMap, questionsOrder, jumpQuestion);
+    Game game = Game.AlreadyExisting(document.id, indexOfQuestion, document['quizId'], dateOfGame, playersId, avancementByQuestionMap, scoreByPlayerMap, questionsOrder, jumpQuestion);
 
     return game;
   }
@@ -232,8 +245,9 @@ class DatabaseService {
     }
 
     bool jumpQuestion = document["jumpQuestion"];
+    int indexOfQuestion = document["indexOfQuestion"];
 
-    Game game = Game.AlreadyExisting(document.id, document['quizId'], dateOfGame, playersId, avancementByQuestionMap, scoreByPlayerMap, questionsOrder,jumpQuestion);
+    Game game = Game.AlreadyExisting(document.id, indexOfQuestion, document['quizId'], dateOfGame, playersId, avancementByQuestionMap, scoreByPlayerMap, questionsOrder,jumpQuestion);
 
     return game;
 

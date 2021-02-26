@@ -94,30 +94,6 @@ class QuizViewState extends State<QuizView> {
 
   }
 
-  /*void initGame() async {
-    bool isWeb = MyApp.isWebDevice;
-    DateTime dateNow = DateTime.now();
-    List<Game> result = await databaseService.allGame;
-    if(result == null || result.isEmpty) requestFailed = true;
-    for(Game game in result) {
-      if(isWeb){
-        if(game.playersId.contains(WebMainPage.userId) && dateNow.difference(game.dateOfGame).inMinutes <= 1 ) {
-          setState(() {
-            currentGame = game;
-            indexOfPlayer = currentGame.playersId.indexOf(WebMainPage.userId);
-          });
-        }
-      } else {
-        if(game.playersId.contains(MobileMainPage.userId) &&  dateNow.difference(game.dateOfGame).inMinutes <= 1 ) {
-          setState(() {
-            currentGame = game;
-            indexOfPlayer = currentGame.playersId.indexOf(MobileMainPage.userId);
-          });
-        }
-      }
-    }
-  } */
-
   @override
   Widget build(BuildContext context) {
     if(currentGame == null) {
