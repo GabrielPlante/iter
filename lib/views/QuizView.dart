@@ -7,6 +7,7 @@ import 'package:iter/main.dart';
 import 'package:iter/models/game.dart';
 import 'package:iter/models/question.dart';
 import 'package:iter/models/quiz.dart';
+import 'package:iter/models/stats.dart';
 import 'package:iter/models/user.dart';
 import 'package:iter/services/databaseService.dart';
 import 'package:iter/views/components/mobileLoginPage.dart';
@@ -40,6 +41,7 @@ class QuizViewState extends State<QuizView> {
   Map<Difficulty,int> availableQuestionsNumberMap = Map();
   PanelController panelController = PanelController();
   bool playerAnsweredQuestion = false;
+  Stats stats;
 
 
   Widget initQuizComponents(int index) {
@@ -121,7 +123,17 @@ class QuizViewState extends State<QuizView> {
                     setState( () {
                       index++;
                       finishQuestion = false;
+                      int nbrOfSelectedItem = 0;
+                      for (int i = 0; i != 4; i++){
+                        if (isSelectedItem[i]) nbrOfSelectedItem++;
+                      }
+                      stats.nbrOfWrongAnswers.add(nbrOfSelectedItem - 1);
                       isSelectedItem = [false, false, false, false];
+                      int nbrOfDeletedItem = 0;
+                      for (int i = 0; i != 4; i++){
+                        if (isDisabledItem[i]) nbrOfDeletedItem++;
+                      }
+                      stats.nbrOfWrongAnswers.add(nbrOfDeletedItem);
                       isDisabledItem = [false, false, false, false];
                       playerAnsweredQuestion = false;
                     });
