@@ -122,6 +122,7 @@ class QuizViewState extends State<QuizView> {
                       index++;
                       finishQuestion = false;
                       isSelectedItem = [false, false, false, false];
+                      isDisabledItem = [false, false, false, false];
                       playerAnsweredQuestion = false;
                     });
                   },
@@ -337,13 +338,13 @@ class QuizViewState extends State<QuizView> {
   void jumpQuestionForPatient() async {
     await databaseService.cheatByJumpingQuestion(currentGame.id, false);
     Future.delayed(
-        const Duration(seconds: 2),
+        const Duration(seconds: 1),
             () {
           setState(() {
             //nextQuestion(currentGame.questionsOrder[index]);
             var numberOfNotSelectedItem = 0;
             for (int i = 0; i != 4; i++){
-              if (isSelectedItem[i] == false){
+              if (isSelectedItem[i] == false && isDisabledItem[i] == false){
                 numberOfNotSelectedItem++;
               }
             }
@@ -352,12 +353,12 @@ class QuizViewState extends State<QuizView> {
               var disabledItem = random.nextInt(numberOfNotSelectedItem - 1);
               var disabledItemId = 0;
               for (int i = 0; i != disabledItem; i++){
-                if (isDisabledItem[i] == false){
+                if (isDisabledItem[i] == false && isDisabledItem[i] == false){
                   disabledItemId++;
                 }
               }
               if (questions[index].answers[disabledItemId] == questions[index].correctAnswer){
-                while(isSelectedItem[++disabledItemId] == true) {}
+                while(isSelectedItem[++disabledItemId] == true || isDisabledItem[disabledItemId] == true) {}
               }
               isDisabledItem[disabledItemId] = true;
                 /*index++;
