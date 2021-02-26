@@ -14,7 +14,7 @@ class ChooseNextQuestionPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.height / 10,
+      height: MediaQuery.of(context).size.height / 13,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -54,7 +54,7 @@ class DifficultyBox extends StatelessWidget {
       position: BadgePosition.topEnd(end: MediaQuery.of(context).size.width / 600),
       badgeContent: Center(child: Text(numberOfAvailableQuestions.toString())),
       child: Container(
-        height: MediaQuery.of(context).size.height / 10,
+        height: MediaQuery.of(context).size.height / 13,
         width: MediaQuery.of(context).size.width / 4,
         child: RaisedButton(
           disabledColor: Theme.of(context).backgroundColor,

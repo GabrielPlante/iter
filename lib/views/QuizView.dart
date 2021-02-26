@@ -141,13 +141,14 @@ class QuizViewState extends State<QuizView> {
       body:
 
       Container(
+        height: MediaQuery.of(context).size.height,
         decoration: BoxDecoration(
             image: DecorationImage(image: AssetImage("assets/images/back/${widget.quiz.imagePath}.jpg"), fit: BoxFit.cover)
         ),
         child: Column( children: [
-          SizedBox(height: MediaQuery.of(context).size.height / 20),
+          SizedBox(height: MediaQuery.of(context).size.height / 30),
           initQuizComponents(index),
-          SizedBox(height: MediaQuery.of(context).size.height / 15),
+          SizedBox(height: MediaQuery.of(context).size.height / 40),
           StreamBuilder<DocumentSnapshot>(
               stream: FirebaseFirestore.instance.collection('Game').doc(currentGame.id).snapshots(),
               builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
@@ -187,12 +188,12 @@ class QuizViewState extends State<QuizView> {
           MobileLoginPageState.status == 1 ?
           SlidingUpPanel(
             controller: panelController,
-            minHeight: MediaQuery.of(context).size.height / 30,
-            maxHeight: MediaQuery.of(context).size.height / 7.5,
+            minHeight: MediaQuery.of(context).size.height / 40,
+            maxHeight: MediaQuery.of(context).size.height / 9,
             collapsed: GestureDetector(
               onTap: () => panelController.open(),
               child: Container(
-                  height: MediaQuery.of(context).size.height / 30,
+                  height: MediaQuery.of(context).size.height / 20,
                   color: Theme.of(context).backgroundColor,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -558,14 +559,14 @@ class ViewAnswerFromPlayer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.height / 10,
+      height: MediaQuery.of(context).size.height / 12,
       decoration: BoxDecoration(
         color: hasAswered ? Colors.green : Colors.red
       ),
       child: Row(
-          mainAxisAlignment: MyApp.isWebDevice ? MainAxisAlignment.start : MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            SizedBox(width: MediaQuery.of(context).size.width / 8),
+            SizedBox(width: 5),
             ClipRRect(
               borderRadius: BorderRadius.circular(100),
               child: SizedBox(
@@ -577,34 +578,33 @@ class ViewAnswerFromPlayer extends StatelessWidget {
 
               ),
             ),
-            SizedBox(width: 10.0),
+            SizedBox(width: 5.0),
             Center(
                 child:  playerName == "ACEceNhYQpHXAdSciepN" ?
                 Text(
                     hasAswered ? "Franck a répondu à la question ! ": "Franck n'a pas encore répondu à la question",
-                    style: TextStyle(fontWeight: FontWeight.bold)
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)
                 ) :
                 Text(
                     hasAswered ? "Amélie a répondu à la question ! ": "Amélie n'a pas encore répondu à la question",
-                    style: TextStyle(fontWeight: FontWeight.bold)
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)
                 ),
             ),
-            SizedBox(width: MyApp.isWebDevice ? 20 : 0),
             Spacer(),
             Visibility(
               visible: MobileLoginPageState.status == 1 && !hasAswered,
               child: Padding(
-                padding: EdgeInsets.only(right: MediaQuery.of(context).size.width / 8),
+                padding: EdgeInsets.only(right: MediaQuery.of(context).size.width / 30),
                 child: Container(
                   decoration: BoxDecoration(
                     color: Colors.lightBlueAccent,
                     borderRadius: BorderRadius.circular(40),
                   ),
                   width: MediaQuery.of(context).size.width / 6,
-                  height: MediaQuery.of(context).size.height / 15,
+                  height: MediaQuery.of(context).size.height / 20,
                   child: FlatButton(
                     onPressed: () => jumpToNextQuestion(),
-                    child: Text("Supprimer une réponse"),
+                    child: Text("Aide"),
                   ),
                 ),
               ),
