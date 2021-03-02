@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'dart:io';
+import 'package:iter/views/components/LogoDisplayer.dart';
 
 import 'package:iter/views/mobileMainPage.dart';
 
@@ -21,16 +21,25 @@ class MobileLoginPageState extends State<MobileLoginPage> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage("assets/images/city_wallpaper.jpg"),
+          fit: BoxFit.cover
+        )
+      ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           SizedBox(),
-          Text("Identifiez-vous", style: TextStyle(fontSize: 25)),
+          Text("Identifiez-vous", style: TextStyle(fontSize: 40)),
+          SizedBox(),
+          LogoDisplayer(),
+          SizedBox(),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               FlatButton(
-                  color: Colors.green,
+                  color: Colors.grey[800],
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10)),
                   onPressed: () => click(1, context),
@@ -38,7 +47,7 @@ class MobileLoginPageState extends State<MobileLoginPage> {
                   padding: EdgeInsets.all(20),
                   child: Text("Admin", style: TextStyle(fontSize: 25)))),
               FlatButton(
-                  color: Colors.green,
+                  color: Colors.grey[800],
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10)),
                   onPressed: () => click(2, context),
@@ -48,6 +57,9 @@ class MobileLoginPageState extends State<MobileLoginPage> {
             ],
           ),
           SizedBox(),
+          Center(
+            child: Text("Logo designed by Starline"),
+          )
         ],
       ),
     );

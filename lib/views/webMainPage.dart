@@ -4,6 +4,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:iter/models/quiz.dart';
 import 'package:iter/models/user.dart';
 import 'package:iter/services/databaseService.dart';
+import 'package:iter/views/components/LogoDisplayer.dart';
 import 'package:iter/views/quizViewWebDisplayer.dart';
 
 class WebMainPage extends StatefulWidget {
@@ -77,12 +78,14 @@ class WebMainPageState extends State<WebMainPage> {
               if(currentQuiz != null && playersReady.length == 1 ) return BodyWebMainView(quiz: currentQuiz, users: playersReady);
               else return Container(
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       Center(
-                        child: Text("Bienvenue sur Assist Quiz", style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold)),
+                        child: Text("En attente d'un joueur...", style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold)),
                       ),
-                      Text("En attente d'un joueur", style: TextStyle(fontSize: 50, fontWeight: FontWeight.normal)),
+                      SizedBox(),
+                      LogoDisplayer(),
+                      SizedBox()
                     ]
                   )
               );
@@ -102,7 +105,6 @@ class WebMainPageState extends State<WebMainPage> {
       if(userResult.isInterfaceWeb) {
         setState(() {
           WebMainPage.user = userResult;
-          print(WebMainPage.user.name);
         });
       }
     }
@@ -132,12 +134,24 @@ class BodyWebMainView extends StatelessWidget {
       height: MediaQuery.of(context).size.height,
       child: Column(
         children: [
-          Container(
-            margin: EdgeInsets.only(top: 100),
-              child: Center(
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Container(
+                      width: 200,
+                      height: 200,
+                      child: Image.asset("assets/images/977.png")),
+                ),
+              ),
+              Container(
                   child: Text(users.length == 2 ? "La partie va commencer ! " : "En attente du 2ème joueur...", style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold)
                   )
-              )
+              ),
+              Spacer()
+            ],
           ),
           Expanded(
             child: Row(
