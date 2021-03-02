@@ -6,7 +6,6 @@ import 'package:iter/views/components/mobileLoginPage.dart';
 import 'components/quizCardComponentForMobile.dart';
 
 class MobileMainPage extends StatefulWidget {
-  static String userName = "Amelie";
   static User user;
 
   @override
@@ -27,15 +26,27 @@ class MobileMainPageState extends State<MobileMainPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text('Menu Principal')),
+        appBar: AppBar(
+            title: Text('Menu Principal'),
+
+        ),
         body: quizs.isEmpty ?
         Center(child: CircularProgressIndicator())
             :
-        ListView.builder(
-            itemCount: quizs.length,
-            itemBuilder: (context, index) {
-              return QuizCardComponentForMobile(quiz: quizs[index],quizJoined : quizs[index].id == quizChosen, parent: this );
-            })
+        Container(
+          margin: EdgeInsets.only(top:10),
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage("assets/images/city_wallpaper.jpg"),
+              fit: BoxFit.cover
+            )
+          ),
+          child: ListView.builder(
+              itemCount: quizs.length,
+              itemBuilder: (context, index) {
+                return QuizCardComponentForMobile(quiz: quizs[index],quizJoined : quizs[index].id == quizChosen, parent: this );
+              }),
+        )
     );
   }
 
@@ -45,7 +56,6 @@ class MobileMainPageState extends State<MobileMainPage> {
       if(userResult.isModerator == (MobileLoginPageState.status == 1) && !userResult.isInterfaceWeb) {
         setState(() {
           MobileMainPage.user = userResult;
-          print(MobileMainPage.user.name);
         });
       }
     }

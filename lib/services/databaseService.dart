@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:iter/models/game.dart';
 import 'package:iter/models/question.dart';
 import 'package:iter/models/quiz.dart';
+import 'package:iter/models/stats.dart';
 import 'package:iter/models/user.dart';
 
 class DatabaseService {
@@ -147,11 +148,15 @@ class DatabaseService {
     return user;
   }
 
-  Future<String> createGame(String quizId, List<String> playersId, List<Question> questions) async {
+  Future<String> createGameAndStat(String quizId, List<String> playersId, List<Question> questions) async {
     DateTime dateOfGame = DateTime.now();
     List<String> questionsOrder = [];
     Map<String,List<bool>> avancementByQuestionMap = HashMap();
     Map<String,int> scoreByPlayerMap = HashMap();
+
+    /// for the stats
+    List<int> nbrOfWrongAnswers = [];
+    List<int> nbrOfDeletedAnswers = [];
 
     for(Question question in questions) {
       questionsOrder.add(question.id);
@@ -175,7 +180,9 @@ class DatabaseService {
       'avancementByQuestionMap' : avancementByQuestionMap,
       'scoreByPlayerMap' : scoreByPlayerMap,
       'questionsOrder' : questionsOrder,
-      'jumpQuestion' : false
+      'jumpQuestion' : false,
+      'nbrOfDeletedAnswers':nbrOfDeletedAnswers,
+      'nbrOfWrongAnswers':nbrOfWrongAnswers
     });
 
     for(String playerId in playersId) {
@@ -187,7 +194,7 @@ class DatabaseService {
     return docRef.id;
   }
 
-  Game updateGame(DocumentSnapshot document) {
+  List updateGameAndStat(DocumentSnapshot document)  {
     DateTime dateOfGame = document['dateOfGame'].toDate() ?? null;
     List<String> playersId = List.castFrom(document['playersId'] as List ?? []);
 
@@ -216,10 +223,15 @@ class DatabaseService {
 
     Game game = Game.AlreadyExisting(document.id, indexOfQuestion, document['quizId'], dateOfGame, playersId, avancementByQuestionMap, scoreByPlayerMap, questionsOrder, jumpQuestion);
 
-    return game;
+    List<int> nbrOfWrongAnswers = List.castFrom(document['nbrOfWrongAnswers'] as List ?? []);
+    List<int> nbrOfDeletedAnswers = List.castFrom(document['nbrOfDeletedAnswers'] as List ?? []);
+
+    Stats gameStat = Stats(document.id,nbrOfWrongAnswers, nbrOfDeletedAnswers) ;
+
+    return [game,gameStat];
   }
 
-  Future<Game> getGameById(String id) async {
+  Future<List> getGameAndStatById(String id) async {
     DocumentSnapshot document = await gameCollection.doc(id).get();
 
     DateTime dateOfGame = document['dateOfGame'].toDate() ?? null;
@@ -247,9 +259,15 @@ class DatabaseService {
     bool jumpQuestion = document["jumpQuestion"];
     int indexOfQuestion = document["indexOfQuestion"];
 
+    List<int> nbrOfWrongAnswers = List.castFrom(document['nbrOfWrongAnswers'] as List ?? []);
+    List<int> nbrOfDeletedAnswers = List.castFrom(document['nbrOfDeletedAnswers'] as List ?? []);
+
+
     Game game = Game.AlreadyExisting(document.id, indexOfQuestion, document['quizId'], dateOfGame, playersId, avancementByQuestionMap, scoreByPlayerMap, questionsOrder,jumpQuestion);
 
-    return game;
+    Stats gameStat = Stats(document.id,nbrOfWrongAnswers, nbrOfDeletedAnswers) ;
+
+    return [game,gameStat];
 
   }
 
