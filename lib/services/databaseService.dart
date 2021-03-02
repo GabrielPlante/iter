@@ -273,4 +273,7 @@ class DatabaseService {
     await gameCollection.doc(gameId).update({'jumpQuestion' : value });
   }
 
+  Future skipQuestion(String gameId, bool value) async {
+    await gameCollection.doc(gameId).update({'skipQuestion' : value });
+  }
 }
