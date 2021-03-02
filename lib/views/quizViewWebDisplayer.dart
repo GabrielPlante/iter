@@ -4,6 +4,7 @@ import 'package:iter/models/game.dart';
 import 'package:iter/models/question.dart';
 import 'package:iter/models/quiz.dart';
 import 'package:iter/models/user.dart';
+import 'package:iter/models/stats.dart';
 import 'package:iter/views/webMainPage.dart';
 import 'package:iter/services/databaseService.dart';
 
@@ -21,14 +22,16 @@ class _QuizViewWebDisplayerState extends State<QuizViewWebDisplayer> {
   List<Question> questions;
   DatabaseService databaseService = DatabaseService();
   Game currentGame;
+  Stats gameStats;
 
 
   void newInitGame() async {
     User interface = WebMainPage.user;
-    Game result = await databaseService.getGameById(interface.currentGameId);
+    List result = await databaseService.getGameAndStatById(interface.currentGameId);
 
     setState(() {
-      currentGame = result;
+      currentGame = result[0];
+      gameStats = result[1];
     });
   }
 
@@ -56,7 +59,9 @@ class _QuizViewWebDisplayerState extends State<QuizViewWebDisplayer> {
             }
 
             DocumentSnapshot document = documentSnapshot.data;
-            currentGame = databaseService.updateGame(document);
+            List updateDatas = databaseService.updateGameAndStat(document);
+            currentGame = updateDatas[0];
+            gameStats = updateDatas[1];
 
             return BodyQuizViewDisplayer(quiz: widget.quiz, currentGame: currentGame, players: widget.players);
           },
@@ -82,21 +87,31 @@ class BodyQuizViewDisplayer extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage("assets/images/back/${quiz.imagePath}.jpg"),
+          fit: BoxFit.cover
+        )
       ),
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height,
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Container(
+            width: MediaQuery.of(context).size.width / 1.4,
               margin: EdgeInsets.only(top: 100),
+              decoration: BoxDecoration(
+                color: currentQuestion.difficulty.color,
+                borderRadius: BorderRadius.circular(30)
+              ),
               child: Center(
-                  child: Text(currentQuestion.questionName, style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold)
+                  child: Text("Question ${currentGame.indexOfQuestion+1} / ${currentGame.questionsOrder.length} : ${currentQuestion.questionName}", style: TextStyle(fontSize: 45, fontWeight: FontWeight.bold)
                   )
               )
           ),
           Expanded(
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Container(
                   width: MediaQuery.of(context).size.width / 3,
@@ -106,8 +121,8 @@ class BodyQuizViewDisplayer extends StatelessWidget {
                       ClipRRect(
                         borderRadius: BorderRadius.circular(100),
                         child: SizedBox(
-                          height: MediaQuery.of(context).size.height / 4,
-                          width: MediaQuery.of(context).size.width / 6,
+                          height: MediaQuery.of(context).size.height / 8,
+                          width: MediaQuery.of(context).size.width / 12,
                           child: Image.asset( "assets/images/${players[0].id}.jpg",
                             fit: BoxFit.fill,
                           ),
@@ -123,28 +138,13 @@ class BodyQuizViewDisplayer extends StatelessWidget {
                 Container(
                   width: MediaQuery.of(context).size.width / 3,
                   height: MediaQuery.of(context).size.height / 3,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(30),
-                    image: DecorationImage(
-                        image: AssetImage("assets/images/back/${quiz.imagePath}.jpg"),
-                        fit: BoxFit.cover
-                    ),
-                  ),
-                  child: Center(
-                    child: Text( quiz.quizName, style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold) ),
-                  ),
-                ),
-                Spacer(),
-                Container(
-                  width: MediaQuery.of(context).size.width / 3,
-                  height: MediaQuery.of(context).size.height / 3,
                   child: Column(
                     children: [
                       ClipRRect(
                         borderRadius: BorderRadius.circular(100),
                         child: SizedBox(
-                          height: MediaQuery.of(context).size.height / 4,
-                          width: MediaQuery.of(context).size.width / 6,
+                          height: MediaQuery.of(context).size.height / 8,
+                          width: MediaQuery.of(context).size.width / 12,
                           child: Image.asset("assets/images/${players[1].id}.jpg",
                             fit: BoxFit.fill,
                           ),

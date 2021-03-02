@@ -41,7 +41,7 @@ class QuizViewState extends State<QuizView> {
   Map<Difficulty,int> availableQuestionsNumberMap = Map();
   PanelController panelController = PanelController();
   bool playerAnsweredQuestion = false;
-  Stats stats;
+  Stats gameStats;
 
 
   Widget initQuizComponents(int index) {
@@ -80,18 +80,17 @@ class QuizViewState extends State<QuizView> {
     if(isWeb){
       WebMainPage.user = await databaseService.updateUser(WebMainPage.user.id);
       user = WebMainPage.user;
-      print(user.currentGameId);
     } else {
       MobileMainPage.user = await databaseService.updateUser(MobileMainPage.user.id);
       user = MobileMainPage.user;
-      print(user.currentGameId);
     }
 
-    Game result = await databaseService.getGameById(user.currentGameId);
+    List result = await databaseService.getGameAndStatById(user.currentGameId);
 
     setState(() {
-      currentGame = result;
+      currentGame = result[0];
       indexOfPlayer = currentGame.playersId.indexOf(user.id);
+      gameStats = result[1];
     });
 
   }
@@ -127,13 +126,13 @@ class QuizViewState extends State<QuizView> {
                       for (int i = 0; i != 4; i++){
                         if (isSelectedItem[i]) nbrOfSelectedItem++;
                       }
-                      stats.nbrOfWrongAnswers.add(nbrOfSelectedItem - 1);
+                      gameStats.nbrOfWrongAnswers.add(nbrOfSelectedItem - 1);
                       isSelectedItem = [false, false, false, false];
                       int nbrOfDeletedItem = 0;
                       for (int i = 0; i != 4; i++){
                         if (isDisabledItem[i]) nbrOfDeletedItem++;
                       }
-                      stats.nbrOfWrongAnswers.add(nbrOfDeletedItem);
+                      gameStats.nbrOfWrongAnswers.add(nbrOfDeletedItem);
                       isDisabledItem = [false, false, false, false];
                       playerAnsweredQuestion = false;
                     });
@@ -170,7 +169,9 @@ class QuizViewState extends State<QuizView> {
                 }
 
                 DocumentSnapshot document = snapshot.data;
-                currentGame = databaseService.updateGame(document);
+                List updateDatas = databaseService.updateGameAndStat(document);
+                currentGame = updateDatas[0];
+                gameStats = updateDatas[1];
                 Map<int,bool> otherPlayersMoves = Map();
                 String questionId = currentGame.questionsOrder[index];
                 List<bool> avancementList = currentGame.avancementByQuestionMap[questionId];

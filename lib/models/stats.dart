@@ -1,6 +1,5 @@
-import 'package:iter/views/webMainPage.dart';
-
 class Stats{
+  String id;
   List<int> nbrOfWrongAnswers = [];
   List<int> nbrOfDeletedAnswers = [];
 
@@ -18,5 +17,11 @@ class Stats{
       t += nbrOfDeletedAnswers[i];
     }
     return t;
+  }
+
+  Stats(String id, List<int> nbrOfWrongAnswers, List<int> nbrOfDeletedAnswers){
+    this.id = id;
+    this.nbrOfDeletedAnswers =nbrOfDeletedAnswers;
+    this.nbrOfWrongAnswers = nbrOfWrongAnswers;
   }
 }

@@ -169,7 +169,7 @@ class _QuizCardComponentForMobileState extends State<QuizCardComponentForMobile>
   }
 
   void adminStartQuiz(List<String> playersId) async {
-    await databaseService.createGame(
+    await databaseService.createGameAndStat(
         widget.quiz.id, playersId, widget.quiz.questions);
   }
 
