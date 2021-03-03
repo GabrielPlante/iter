@@ -173,14 +173,16 @@ class _QuizCardComponentForMobileState extends State<QuizCardComponentForMobile>
   void adminStartQuiz(List<String> playersId) async {
     databaseService.createGameAndStat(widget.quiz.id, playersId, widget.quiz.questions).then( (value) {
       databaseService.setHasJoined(widget.quiz.id, true);
-      Navigator.of(context).pop();
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) =>
-                  QuizView(quiz: widget.quiz)
-          )
-      );
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        Navigator.of(context).pop();
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    QuizView(quiz: widget.quiz)
+            )
+        );
+      });
     });
   }
 
