@@ -1,10 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:iter/models/game.dart';
 import 'package:iter/models/question.dart';
 import 'package:iter/models/quiz.dart';
 import 'package:iter/models/user.dart';
 import 'package:iter/models/stats.dart';
+import 'package:iter/views/webEndQuiz.dart';
 import 'package:iter/views/webMainPage.dart';
 import 'package:iter/services/databaseService.dart';
 
@@ -63,7 +66,8 @@ class _QuizViewWebDisplayerState extends State<QuizViewWebDisplayer> {
             currentGame = updateDatas[0];
             gameStats = updateDatas[1];
 
-            return BodyQuizViewDisplayer(quiz: widget.quiz, currentGame: currentGame, players: widget.players);
+            if(currentGame.indexOfQuestion >= widget.quiz.questions.length) return WebEndQuiz();
+            else return BodyQuizViewDisplayer(quiz: widget.quiz, questions: questions, currentGame: currentGame, players: widget.players);
           },
         ),
       )
@@ -76,14 +80,17 @@ class _QuizViewWebDisplayerState extends State<QuizViewWebDisplayer> {
 
 class BodyQuizViewDisplayer extends StatelessWidget {
   final Quiz quiz;
+  final List<Question> questions;
   final Game currentGame;
   final List<User> players;
 
-  BodyQuizViewDisplayer({this.quiz, this.currentGame, this.players});
+  BodyQuizViewDisplayer({this.quiz, this.questions, this.currentGame, this.players});
 
   @override
   Widget build(BuildContext context) {
     Question currentQuestion = quiz.questions.firstWhere((element) => element.id == currentGame.questionsOrder[currentGame.indexOfQuestion]);
+    Question nextQuestion;
+    if(currentGame.indexOfQuestion + 1 < quiz.questions.length )  nextQuestion = quiz.questions.firstWhere((element) => element.id ==currentGame.questionsOrder[currentGame.indexOfQuestion + 1]);
 
     return Container(
       decoration: BoxDecoration(
@@ -130,7 +137,9 @@ class BodyQuizViewDisplayer extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: 20),
-                      Text(players[0].name, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30) )
+                      Center(child: Text(players[0].name, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30) )),
+                      SizedBox(height: 10),
+                      Center(child: ListingAvancementContainer(questions: questions, avancement: currentGame.avancementByQuestionMap, indexPlayer: 0)),
                     ],
                   ),
                 ),
@@ -151,15 +160,60 @@ class BodyQuizViewDisplayer extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: 20),
-                      Text(players[1].name,  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30) )
+                      Center(child: Text(players[1].name,  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30) )),
+                      SizedBox(height: 10),
+                      Center(child: ListingAvancementContainer(questions: questions, avancement: currentGame.avancementByQuestionMap, indexPlayer: 0)),
                     ],
                   ),
                 ),
               ],
             ),
+          ),
+          Container(
+              width: MediaQuery.of(context).size.width / 1.8,
+              margin: EdgeInsets.only(bottom: 100),
+              decoration: BoxDecoration(
+                  color: currentQuestion.difficulty.color,
+                  borderRadius: BorderRadius.circular(30)
+              ),
+              child: Visibility(
+                visible: nextQuestion != null,
+                child: Center(
+                    child: Text("Prochaine question :  ${currentGame.indexOfQuestion+2} / ${currentGame.questionsOrder.length} : ${nextQuestion.questionName}", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)
+                    )
+                ),
+              )
           )
         ],
       ),
     );
   }
 }
+
+class ListingAvancementContainer extends StatelessWidget {
+  final List<Question> questions;
+  final Map<String,List<bool>> avancement;
+  final int indexPlayer;
+
+  ListingAvancementContainer({this.questions,this.avancement, this.indexPlayer});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      alignment: Alignment.center,
+      width: MediaQuery.of(context).size.width / 8,
+      height: MediaQuery.of(context).size.height / 30,
+      child: ListView.builder(
+          shrinkWrap: true,
+          scrollDirection: Axis.horizontal,
+          itemCount: questions.length,
+          itemBuilder: (context, index) {
+            return Icon(
+              Icons.assignment_turned_in,
+              color: avancement[questions[index].id][indexPlayer] ? Colors.green : Colors.grey,
+            );
+          }),
+    );
+  }
+}
+

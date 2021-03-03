@@ -134,11 +134,13 @@ class QuizViewState extends State<QuizView> {
                     index + 1 != questions.length ? Colors.green : Colors.red,
                 child: FlatButton(
                   onPressed: () {
+                    if(!user.isModerator) databaseService.updateIndexQuestion(currentGame.id, index);
                     if (index + 1 < questions.length)
                       updateAvailableQuestionMap(
                           questions[index + 1].difficulty);
                     setState(() {
                       if (skipQuestion && index + 2 < questions.length) index++;
+                      skipQuestion = false;
                       index++;
                       finishQuestion = false;
                       int nbrOfSelectedItem = 0;
