@@ -244,6 +244,10 @@ class DatabaseService {
     await quizCollection.doc(quizId).update( { 'waitingPlayers' : FieldValue.arrayRemove([playerId]) } );
   }
 
+  Future removeWaitingPlayers(String quizId, List<String> players) async {
+    await quizCollection.doc(quizId).update({ 'waitingPlayers': FieldValue.arrayRemove(players) });
+  }
+
   Future setQuestionFinished(String gameId, String questionId, Map<String,List<bool>> newAvancementMap) async {
     await gameCollection.doc(gameId).update({'avancementByQuestionMap' : newAvancementMap });
   }
