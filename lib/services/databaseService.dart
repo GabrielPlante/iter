@@ -100,7 +100,7 @@ class DatabaseService {
 
       int indexOfQuestion = document["indexOfQuestion"];
 
-      Game game = Game.AlreadyExisting(document.id, indexOfQuestion, document['quizId'], dateOfGame, playersId, avancementByQuestionMap, scoreByPlayerMap, questionsOrder, document['jumpQuestion']);
+      Game game = Game.AlreadyExisting(document.id, indexOfQuestion, document['quizId'], dateOfGame, playersId, avancementByQuestionMap, scoreByPlayerMap, questionsOrder, document['jumpQuestion'], document['skipQuestion']);
 
       games.add(game);
     }
@@ -218,10 +218,11 @@ class DatabaseService {
     }
 
     bool jumpQuestion = document["jumpQuestion"];
+    bool skipQuestion = document["skipQuestion"];
     int indexOfQuestion = document["indexOfQuestion"];
 
 
-    Game game = Game.AlreadyExisting(document.id, indexOfQuestion, document['quizId'], dateOfGame, playersId, avancementByQuestionMap, scoreByPlayerMap, questionsOrder, jumpQuestion);
+    Game game = Game.AlreadyExisting(document.id, indexOfQuestion, document['quizId'], dateOfGame, playersId, avancementByQuestionMap, scoreByPlayerMap, questionsOrder, jumpQuestion, skipQuestion);
 
     List<int> nbrOfWrongAnswers = List.castFrom(document['nbrOfWrongAnswers'] as List ?? []);
     List<int> nbrOfDeletedAnswers = List.castFrom(document['nbrOfDeletedAnswers'] as List ?? []);
@@ -257,13 +258,14 @@ class DatabaseService {
     }
 
     bool jumpQuestion = document["jumpQuestion"];
+    bool skipQuestion = document["skipQuestion"];
     int indexOfQuestion = document["indexOfQuestion"];
 
     List<int> nbrOfWrongAnswers = List.castFrom(document['nbrOfWrongAnswers'] as List ?? []);
     List<int> nbrOfDeletedAnswers = List.castFrom(document['nbrOfDeletedAnswers'] as List ?? []);
 
 
-    Game game = Game.AlreadyExisting(document.id, indexOfQuestion, document['quizId'], dateOfGame, playersId, avancementByQuestionMap, scoreByPlayerMap, questionsOrder,jumpQuestion);
+    Game game = Game.AlreadyExisting(document.id, indexOfQuestion, document['quizId'], dateOfGame, playersId, avancementByQuestionMap, scoreByPlayerMap, questionsOrder,jumpQuestion, skipQuestion);
 
     Stats gameStat = Stats(document.id,nbrOfWrongAnswers, nbrOfDeletedAnswers) ;
 

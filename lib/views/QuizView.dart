@@ -31,7 +31,7 @@ class QuizViewState extends State<QuizView> {
   User user;
   List<Question> questions = [];
   Game currentGame;
-  DatabaseService databaseService  = DatabaseService();
+  DatabaseService databaseService = DatabaseService();
   bool finishQuestion = false;
   int index = 0;
   int indexOfPlayer = 0;
@@ -69,6 +69,7 @@ class QuizViewState extends State<QuizView> {
     } else
       return EndQuizComponent();
   }
+
   @override
   void initState() {
     questions = widget.quiz.questions;
@@ -137,6 +138,7 @@ class QuizViewState extends State<QuizView> {
                       updateAvailableQuestionMap(
                           questions[index + 1].difficulty);
                     setState(() {
+                      if (skipQuestion && index + 2 < questions.length) index++;
                       index++;
                       finishQuestion = false;
                       int nbrOfSelectedItem = 0;
@@ -194,7 +196,7 @@ class QuizViewState extends State<QuizView> {
                 List updateDatas = databaseService.updateGameAndStat(document);
                 currentGame = updateDatas[0];
                 gameStats = updateDatas[1];
-                Map<int,bool> otherPlayersMoves = Map();
+                Map<int, bool> otherPlayersMoves = Map();
                 String questionId = currentGame.questionsOrder[index];
                 List<bool> avancementList =
                     currentGame.avancementByQuestionMap[questionId];
@@ -205,6 +207,8 @@ class QuizViewState extends State<QuizView> {
                 }
                 if (MobileLoginPageState.status == 2 &&
                     currentGame.jumpQuestion) jumpQuestionForPatient();
+                if (MobileLoginPageState.status == 2 &&
+                    currentGame.skipQuestion) skipQuestionForPatient();
                 if (otherPlayersMoves.keys == null ||
                     otherPlayersMoves.keys.isEmpty) {
                   return LoadingWidget();
