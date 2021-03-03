@@ -206,7 +206,7 @@ class QuizViewState extends State<QuizView> {
                   }
                 }
                 if (MobileLoginPageState.status == 2 &&
-                    currentGame.getQuestionHelp) jumpQuestionForPatient();
+                    currentGame.getQuestionHelp) getQuestionHelp();
                 if (MobileLoginPageState.status == 2 &&
                     currentGame.skipQuestion > 0)
                   skipQuestionForPatient(currentGame.skipQuestion);
@@ -399,10 +399,10 @@ class QuizViewState extends State<QuizView> {
     });
   }
 
-  void cheatToNextQuestion() async {
+  void sendQuestionHelp() async {
     //updateAvailableQuestionMap(questions[index + 1].difficulty);
     //nextQuestion(currentGame.questionsOrder[index]);
-    databaseService.cheatByJumpingQuestion(currentGame.id, true);
+    databaseService.questionHelp(currentGame.id, true);
     /*setState( () {
       index++;
       finishQuestion = false;
@@ -411,8 +411,8 @@ class QuizViewState extends State<QuizView> {
     });*/
   }
 
-  void jumpQuestionForPatient() async {
-    await databaseService.cheatByJumpingQuestion(currentGame.id, false);
+  void getQuestionHelp() async {
+    await databaseService.questionHelp(currentGame.id, false);
     Future.delayed(const Duration(seconds: 1), () {
       setState(() {
         //nextQuestion(currentGame.questionsOrder[index]);
@@ -790,6 +790,6 @@ class ViewAnswerFromPlayer extends StatelessWidget {
   }
 
   void jumpToNextQuestion() {
-    parent.cheatToNextQuestion();
+    parent.sendQuestionHelp();
   }
 }

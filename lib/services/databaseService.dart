@@ -256,8 +256,8 @@ class DatabaseService {
     await gameCollection.doc(gameId).update({'questionsOrder' : newQuestionsOrder });
   }
 
-  Future cheatByJumpingQuestion(String gameId, bool value) async {
-    await gameCollection.doc(gameId).update({'skipQuestion' : value });
+  Future questionHelp(String gameId, bool value) async {
+    await gameCollection.doc(gameId).update({'getQuestionHelp' : value });
   }
 
   Future skipQuestion(String gameId, int value) async {
