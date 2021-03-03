@@ -430,8 +430,8 @@ class QuizViewState extends State<QuizView> {
           var random = new Random();
           var disabledItem = random.nextInt(numberOfNotSelectedItem - 1);
           var disabledItemId = 0;
-          for (int i = 0; i != disabledItem; i++) {
-            if (isDisabledItem[i] == false && isDisabledItem[i] == false) {
+          for (int i = 0; disabledItemId != disabledItem; i++) {
+            if (isSelectedItem[i] == false && isDisabledItem[i] == false) {
               disabledItemId++;
             }
           }
