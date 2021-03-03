@@ -8,7 +8,8 @@ class Game {
   List<String> playersId;
   List<String> questionsOrder = [];
   int indexOfQuestion;
-  bool jumpQuestion;
+  bool getQuestionHelp;
+  bool skipQuestion;
 
   Map<String,List<bool>> avancementByQuestionMap = HashMap();
   Map<String,int> scoreByPlayerMap = HashMap();
@@ -34,10 +35,10 @@ class Game {
       this.scoreByPlayerMap[playerId] = 0;
     }
 
-    this.jumpQuestion = false;
+    this.getQuestionHelp = false;
   }
 
-  Game.AlreadyExisting(String id, int indexOfQuestion, String quizId, DateTime dateOfGame, List<String> playersId, Map<String,List<bool>> avancementByQuestionMap, Map<String,int>scoreByPlayerMap, List<String> questionsOrder, bool jumpQuestion) {
+  Game.AlreadyExisting(String id, int indexOfQuestion, String quizId, DateTime dateOfGame, List<String> playersId, Map<String,List<bool>> avancementByQuestionMap, Map<String,int>scoreByPlayerMap, List<String> questionsOrder, bool getQuestionHelp, bool skipQuestion) {
     this.id = id;
     this.indexOfQuestion = indexOfQuestion;
     this.quizId = quizId;
@@ -46,7 +47,8 @@ class Game {
     this.avancementByQuestionMap = avancementByQuestionMap;
     this.scoreByPlayerMap = scoreByPlayerMap;
     this.questionsOrder = questionsOrder;
-    this.jumpQuestion = jumpQuestion;
+    this.getQuestionHelp = getQuestionHelp;
+    this.skipQuestion = skipQuestion;
   }
 
 }

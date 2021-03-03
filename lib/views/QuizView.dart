@@ -180,7 +180,7 @@ class QuizViewState extends State<QuizView> {
                     otherPlayersMoves[i] = avancementList[i];
                   }
                 }
-                if(MobileLoginPageState.status == 2 && currentGame.jumpQuestion) jumpQuestionForPatient();
+                if(MobileLoginPageState.status == 2 && currentGame.getQuestionHelp) jumpQuestionForPatient();
                 if(otherPlayersMoves.keys == null || otherPlayersMoves.keys.isEmpty) {
                   return LoadingWidget();
                 } else {
