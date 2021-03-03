@@ -43,7 +43,7 @@ class QuizViewState extends State<QuizView> {
   bool playerAnsweredQuestion = false;
   Stats gameStats;
 
-  bool skipQuestion = false;
+  int nbrOfQuestionSkipped = 0;
 
   Widget initQuizComponents(int index) {
     if (index < questions.length) {
@@ -64,8 +64,7 @@ class QuizViewState extends State<QuizView> {
           isSelectedItem: isSelectedItem,
           isDisabledItem: isDisabledItem,
           displayAvancement: displayAvancement,
-          imagePath: widget.quiz.imagePath,
-          displayNextQuestion: nextQuestion);
+          imagePath: widget.quiz.imagePath);
     } else
       return EndQuizComponent();
   }
@@ -139,8 +138,10 @@ class QuizViewState extends State<QuizView> {
                       updateAvailableQuestionMap(
                           questions[index + 1].difficulty);
                     setState(() {
-                      if (skipQuestion && index + 2 < questions.length) index++;
-                      skipQuestion = false;
+                      if (nbrOfQuestionSkipped > 0 &&
+                          index + 2 < questions.length)
+                        index += nbrOfQuestionSkipped;
+                      nbrOfQuestionSkipped = 0;
                       index++;
                       finishQuestion = false;
                       int nbrOfSelectedItem = 0;
@@ -207,10 +208,13 @@ class QuizViewState extends State<QuizView> {
                     otherPlayersMoves[i] = avancementList[i];
                   }
                 }
-                if(MobileLoginPageState.status == 2 && currentGame.getQuestionHelp) jumpQuestionForPatient();
                 if (MobileLoginPageState.status == 2 &&
-                    currentGame.skipQuestion) skipQuestionForPatient();
-                if(otherPlayersMoves.keys == null || otherPlayersMoves.keys.isEmpty) {
+                    currentGame.getQuestionHelp) jumpQuestionForPatient();
+                if (MobileLoginPageState.status == 2 &&
+                    currentGame.skipQuestion > 0)
+                  skipQuestionForPatient(currentGame.skipQuestion);
+                if (otherPlayersMoves.keys == null ||
+                    otherPlayersMoves.keys.isEmpty) {
                   return LoadingWidget();
                 } else {
                   asyncTerminateQuestion(otherPlayersMoves.values.toList()[0]);
@@ -383,17 +387,17 @@ class QuizViewState extends State<QuizView> {
     }
   }
 
-  void skipNextQuestion() async {
-    updateAvailableQuestionMap(questions[index + 1].difficulty);
-    databaseService.skipQuestion(currentGame.id, true);
-    skipQuestion = true;
+  void skipNextQuestion(int nbrOfSkippedQuestion) async {
+    updateAvailableQuestionMap(questions[index + 1 + nbrOfSkippedQuestion].difficulty);
+    databaseService.skipQuestion(currentGame.id, nbrOfSkippedQuestion);
+    nbrOfQuestionSkipped = nbrOfSkippedQuestion;
   }
 
-  void skipQuestionForPatient() async {
-    await databaseService.skipQuestion(currentGame.id, false);
+  void skipQuestionForPatient(int nbrOfSkippedQuestion) async {
+    await databaseService.skipQuestion(currentGame.id, 0);
     Future.delayed(const Duration(seconds: 1), () {
       setState(() {
-        skipQuestion = true;
+        nbrOfQuestionSkipped = nbrOfSkippedQuestion;
       });
     });
   }
@@ -460,7 +464,6 @@ class QuizComponent extends StatelessWidget {
   final List<bool> isDisabledItem;
   final String displayAvancement;
   final String imagePath;
-  final String displayNextQuestion;
 
   QuizComponent(
       {Key key,
@@ -469,8 +472,7 @@ class QuizComponent extends StatelessWidget {
       this.isSelectedItem,
       this.isDisabledItem,
       this.displayAvancement,
-      this.imagePath,
-      this.displayNextQuestion})
+      this.imagePath})
       : super(key: key);
 
   @override
@@ -490,28 +492,53 @@ class QuizComponent extends StatelessWidget {
                     Text(displayAvancement + " : ${question.questionName}",
                         style: TextStyle(
                             fontSize: 200, fontWeight: FontWeight.bold)),
-                    MobileLoginPageState.status == 1
-                        ? Text("Question suivante : ${displayNextQuestion}",
-                            style: TextStyle(
-                                fontSize: 200, fontWeight: FontWeight.bold))
-                        : SizedBox(),
-                    MobileLoginPageState.status == 1
-                        ? FlatButton(
-                            onPressed: () => {parent.skipNextQuestion()},
-                            child: Text("Sauter la question",
-                                style: TextStyle(
-                                    fontSize: 200,
-                                    fontWeight: FontWeight.bold)),
-                            color: Colors.lightBlueAccent,
-                            padding: EdgeInsets.all(150.0),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(300.0),
-                                side: BorderSide(color: Colors.red)),
-                          )
-                        : SizedBox()
                   ],
                 ))),
       ),
+      SizedBox(height: MobileLoginPageState.status == 1 ? 20 : 0),
+      MobileLoginPageState.status == 1
+          ? Container(
+              height: MediaQuery.of(context).size.height / 8,
+              decoration: BoxDecoration(
+                color: parent.questions[parent.index + parent.nbrOfQuestionSkipped + 1].difficulty.color,
+              ),
+              child: Center(
+                  child: FittedBox(
+                      fit: BoxFit.cover,
+                      child: Column(
+                        children: [
+                          Text(
+                              "Question suivante : ${parent.questions[parent.index + parent.nbrOfQuestionSkipped + 1].questionName}",
+                              style: TextStyle(
+                                  fontSize: 120, fontWeight: FontWeight.bold)),
+                          Text(
+                              "Difficulté : ${parent.questions[parent.index + parent.nbrOfQuestionSkipped + 1].difficulty.name}",
+                              style: TextStyle(
+                                  fontSize: 120, fontWeight: FontWeight.bold)),
+                          FlatButton(
+                            onPressed: () {
+                              parent.skipNextQuestion(
+                                  parent.nbrOfQuestionSkipped + 1);
+                              final snackBar = SnackBar(
+                                content: Text("Question sautée"),
+                              );
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(snackBar);
+                            },
+                            child: Text("Sauter la question",
+                                style: TextStyle(
+                                    fontSize: 120,
+                                    fontWeight: FontWeight.bold)),
+                            color: Colors.lightBlueAccent,
+                            padding: EdgeInsets.all(100.0),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(200.0),
+                                side: BorderSide(color: Colors.red)),
+                          )
+                        ],
+                      ))),
+            )
+          : SizedBox(),
       SizedBox(height: MediaQuery.of(context).size.height / 15),
       Column(
         children: [
@@ -524,7 +551,9 @@ class QuizComponent extends StatelessWidget {
                   onPressed: () {
                     selectedAndVerifyAnswer(question.answers[0], 0);
                   },
-                  height: MediaQuery.of(context).size.height / 4,
+                  height: MobileLoginPageState.status == 1
+                      ? MediaQuery.of(context).size.height / 6
+                      : MediaQuery.of(context).size.height / 4,
                   minWidth: MediaQuery.of(context).size.width / 3,
                   color: isSelectedItem[0] &&
                           question.correctAnswer == question.answers[0]
@@ -553,7 +582,9 @@ class QuizComponent extends StatelessWidget {
                   onPressed: () {
                     selectedAndVerifyAnswer(question.answers[1], 1);
                   },
-                  height: MediaQuery.of(context).size.height / 4,
+                  height: MobileLoginPageState.status == 1
+                      ? MediaQuery.of(context).size.height / 6
+                      : MediaQuery.of(context).size.height / 4,
                   minWidth: MediaQuery.of(context).size.width / 3,
                   color: isSelectedItem[1] &&
                           question.correctAnswer == question.answers[1]
@@ -586,7 +617,9 @@ class QuizComponent extends StatelessWidget {
                   onPressed: () {
                     selectedAndVerifyAnswer(question.answers[3], 2);
                   },
-                  height: MediaQuery.of(context).size.height / 4,
+                  height: MobileLoginPageState.status == 1
+                      ? MediaQuery.of(context).size.height / 6
+                      : MediaQuery.of(context).size.height / 4,
                   minWidth: MediaQuery.of(context).size.width / 3,
                   color: isSelectedItem[2] &&
                           question.correctAnswer == question.answers[3]
@@ -614,7 +647,9 @@ class QuizComponent extends StatelessWidget {
                   onPressed: () {
                     selectedAndVerifyAnswer(question.answers[2], 3);
                   },
-                  height: MediaQuery.of(context).size.height / 4,
+                  height: MobileLoginPageState.status == 1
+                      ? MediaQuery.of(context).size.height / 6
+                      : MediaQuery.of(context).size.height / 4,
                   minWidth: MediaQuery.of(context).size.width / 3,
                   color: isSelectedItem[3] &&
                           question.correctAnswer == question.answers[2]
