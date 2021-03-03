@@ -66,6 +66,8 @@ class _QuizViewWebDisplayerState extends State<QuizViewWebDisplayer> {
             currentGame = updateDatas[0];
             gameStats = updateDatas[1];
 
+            if(currentGame.getQuestionHelp) handlerHelpDisplayer();
+
             if(currentGame.indexOfQuestion >= widget.quiz.questions.length) return WebEndQuiz();
             else return BodyQuizViewDisplayer(quiz: widget.quiz, questions: questions, currentGame: currentGame, players: widget.players);
           },
@@ -74,6 +76,19 @@ class _QuizViewWebDisplayerState extends State<QuizViewWebDisplayer> {
           :
       CircularProgressIndicator(),
     );
+  }
+
+  handlerHelpDisplayer() {
+    showDialog(
+        context: context,
+        builder: (context) {
+          Future.delayed(Duration(seconds: 3), () {
+            Navigator.of(context).pop(true);
+          });
+          return AlertDialog(
+            title: Text('Franck vient en aide !'),
+          );
+        });
   }
 }
 
