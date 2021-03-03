@@ -65,7 +65,7 @@ class WebMainPageState extends State<WebMainPage> {
                   }
                 }
               }
-              if(currentQuiz != null && playersReady.length == 2  && query.connectionState == ConnectionState.active) {
+              if(currentQuiz != null && playersReady.length == 2  && query.connectionState == ConnectionState.active && currentQuiz.hasJoined) {
                 SchedulerBinding.instance.addPostFrameCallback((_) {
                   Navigator.of(context).pop();
                   Navigator.push(

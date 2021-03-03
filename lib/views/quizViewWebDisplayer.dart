@@ -48,6 +48,7 @@ class _QuizViewWebDisplayerState extends State<QuizViewWebDisplayer> {
 
   @override
   Widget build(BuildContext context) {
+    print(currentGame.id);
     return Scaffold(
       body: currentGame != null  ?
       Container(
