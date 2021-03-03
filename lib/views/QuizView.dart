@@ -490,7 +490,8 @@ class QuizComponent extends StatelessWidget {
                 fit: BoxFit.cover,
                 child: Column(
                   children: [
-                    Text(displayAvancement + " : ${question.questionName}",
+                    Text(MobileLoginPageState.status == 1 ? " Question ${parent.index + 1} / ${parent.widget.quiz.questions.length} " + " : ${question.questionName}"
+                        : " Question " + " : ${question.questionName}",
                         style: TextStyle(
                             fontSize: 200, fontWeight: FontWeight.bold)),
                   ],
