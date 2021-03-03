@@ -95,6 +95,9 @@ class QuizViewState extends State<QuizView> {
       user = MobileMainPage.user;
     }
 
+    print("------------------------------------------------------");
+    print(user.currentGameId);
+    print("------------------------------------------------------");
     List result = await databaseService.getGameAndStatById(user.currentGameId);
 
     setState(() {

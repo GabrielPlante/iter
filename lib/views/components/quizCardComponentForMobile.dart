@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:iter/models/question.dart';
 import 'package:iter/models/quiz.dart';
 import 'package:iter/views/components/mobileLoginPage.dart';
@@ -124,17 +123,6 @@ class _QuizCardComponentForMobileState extends State<QuizCardComponentForMobile>
                               List<String> playersId = List.castFrom(userDocument['waitingPlayers'] as List ?? []);
                               adminStartQuiz(playersId);
                             }
-                            SchedulerBinding.instance.addPostFrameCallback((_) {
-                              Navigator.of(context).pop();
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          QuizView(quiz: widget.quiz)
-                                  )
-                              );
-                            }
-                            );
                           }
                           List<String> playersId = List.castFrom(
                               userDocument['waitingPlayers'] as List ?? []);
@@ -169,8 +157,16 @@ class _QuizCardComponentForMobileState extends State<QuizCardComponentForMobile>
   }
 
   void adminStartQuiz(List<String> playersId) async {
-    await databaseService.createGameAndStat(
-        widget.quiz.id, playersId, widget.quiz.questions);
+    databaseService.createGameAndStat(widget.quiz.id, playersId, widget.quiz.questions).then( (value) {
+      Navigator.of(context).pop();
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  QuizView(quiz: widget.quiz)
+          )
+      );
+    });
   }
 
   Difficulty averageQuizDifficulty() {
