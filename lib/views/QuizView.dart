@@ -205,12 +205,10 @@ class QuizViewState extends State<QuizView> {
                     otherPlayersMoves[i] = avancementList[i];
                   }
                 }
-                if (MobileLoginPageState.status == 2 &&
-                    currentGame.jumpQuestion) jumpQuestionForPatient();
+                if(MobileLoginPageState.status == 2 && currentGame.getQuestionHelp) jumpQuestionForPatient();
                 if (MobileLoginPageState.status == 2 &&
                     currentGame.skipQuestion) skipQuestionForPatient();
-                if (otherPlayersMoves.keys == null ||
-                    otherPlayersMoves.keys.isEmpty) {
+                if(otherPlayersMoves.keys == null || otherPlayersMoves.keys.isEmpty) {
                   return LoadingWidget();
                 } else {
                   asyncTerminateQuestion(otherPlayersMoves.values.toList()[0]);

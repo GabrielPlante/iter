@@ -70,44 +70,6 @@ class DatabaseService {
     return quiz;
   }
 
-  Future<List<Game>> get allGame async {
-    QuerySnapshot gameQueries = await gameCollection.get();
-
-    if(gameQueries == null) return null;
-
-    for(DocumentSnapshot document in gameQueries.docs) {
-      DateTime dateOfGame = document['dateOfGame'].toDate() ?? null;
-      List<String> playersId = List.castFrom(document['playersId'] as List ?? []);
-
-      List<String> questionsOrder = List.castFrom(document['questionsOrder'] as List ?? []);
-
-      Map<String, List<bool>> avancementByQuestionMap = Map();
-      if(document['avancementByQuestionMap'] != null) {
-        document['avancementByQuestionMap'].forEach((key, value) {
-          String questionId = key;
-          List<bool> avancencement = List.castFrom(document['avancementByQuestionMap'][questionId] as List ?? []);
-
-          avancementByQuestionMap[questionId] = avancencement;
-        });
-      }
-
-      Map<String, int> scoreByPlayerMap = Map();
-      if(document['scoreByPlayerMap'] != null) {
-        document['scoreByPlayerMap'].forEach((key, value) {
-          scoreByPlayerMap[key] = value.toInt();
-        });
-      }
-
-      int indexOfQuestion = document["indexOfQuestion"];
-
-      Game game = Game.AlreadyExisting(document.id, indexOfQuestion, document['quizId'], dateOfGame, playersId, avancementByQuestionMap, scoreByPlayerMap, questionsOrder, document['jumpQuestion'], document['skipQuestion']);
-
-      games.add(game);
-    }
-
-    return games;
-  }
-
   Future<List<User>> get allUser async {
     QuerySnapshot userQueries = await userCollection.get();
     List<User> users = [];
@@ -180,7 +142,8 @@ class DatabaseService {
       'avancementByQuestionMap' : avancementByQuestionMap,
       'scoreByPlayerMap' : scoreByPlayerMap,
       'questionsOrder' : questionsOrder,
-      'jumpQuestion' : false,
+      'getQuestionHelp' : false,
+      'skipQuestion' : false,
       'nbrOfDeletedAnswers':nbrOfDeletedAnswers,
       'nbrOfWrongAnswers':nbrOfWrongAnswers
     });
@@ -217,12 +180,12 @@ class DatabaseService {
       });
     }
 
-    bool jumpQuestion = document["jumpQuestion"];
+    bool getQuestionHelp = document["getQuestionHelp"];
     bool skipQuestion = document["skipQuestion"];
     int indexOfQuestion = document["indexOfQuestion"];
 
 
-    Game game = Game.AlreadyExisting(document.id, indexOfQuestion, document['quizId'], dateOfGame, playersId, avancementByQuestionMap, scoreByPlayerMap, questionsOrder, jumpQuestion, skipQuestion);
+    Game game = Game.AlreadyExisting(document.id, indexOfQuestion, document['quizId'], dateOfGame, playersId, avancementByQuestionMap, scoreByPlayerMap, questionsOrder, getQuestionHelp, skipQuestion);
 
     List<int> nbrOfWrongAnswers = List.castFrom(document['nbrOfWrongAnswers'] as List ?? []);
     List<int> nbrOfDeletedAnswers = List.castFrom(document['nbrOfDeletedAnswers'] as List ?? []);
@@ -257,7 +220,7 @@ class DatabaseService {
       });
     }
 
-    bool jumpQuestion = document["jumpQuestion"];
+    bool getQuestionHelp = document["getQuestionHelp"];
     bool skipQuestion = document["skipQuestion"];
     int indexOfQuestion = document["indexOfQuestion"];
 
@@ -265,7 +228,7 @@ class DatabaseService {
     List<int> nbrOfDeletedAnswers = List.castFrom(document['nbrOfDeletedAnswers'] as List ?? []);
 
 
-    Game game = Game.AlreadyExisting(document.id, indexOfQuestion, document['quizId'], dateOfGame, playersId, avancementByQuestionMap, scoreByPlayerMap, questionsOrder,jumpQuestion, skipQuestion);
+    Game game = Game.AlreadyExisting(document.id, indexOfQuestion, document['quizId'], dateOfGame, playersId, avancementByQuestionMap, scoreByPlayerMap, questionsOrder,getQuestionHelp,skipQuestion);
 
     Stats gameStat = Stats(document.id,nbrOfWrongAnswers, nbrOfDeletedAnswers) ;
 
