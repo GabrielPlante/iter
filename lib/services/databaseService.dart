@@ -269,6 +269,7 @@ class DatabaseService {
   }
 
   void setHasJoined(String quizId, bool hasJoined)  {
-    quizCollection.doc(quizId).update({'hasJoined' : hasJoined, 'waitingPlayers' : [] });
+    if(!hasJoined) quizCollection.doc(quizId).update({'hasJoined' : hasJoined });
+    else quizCollection.doc(quizId).update({'hasJoined' : hasJoined, 'waitingPlayers' : [] });
   }
 }
