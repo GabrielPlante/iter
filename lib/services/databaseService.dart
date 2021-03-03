@@ -143,7 +143,7 @@ class DatabaseService {
       'scoreByPlayerMap' : scoreByPlayerMap,
       'questionsOrder' : questionsOrder,
       'getQuestionHelp' : false,
-      'skipQuestion' : false,
+      'skipQuestion' : 0,
       'nbrOfDeletedAnswers':nbrOfDeletedAnswers,
       'nbrOfWrongAnswers':nbrOfWrongAnswers
     });
@@ -181,7 +181,7 @@ class DatabaseService {
     }
 
     bool getQuestionHelp = document["getQuestionHelp"];
-    bool skipQuestion = document["skipQuestion"];
+    int skipQuestion = document["skipQuestion"];
     int indexOfQuestion = document["indexOfQuestion"];
 
 
@@ -221,7 +221,7 @@ class DatabaseService {
     }
 
     bool getQuestionHelp = document["getQuestionHelp"];
-    bool skipQuestion = document["skipQuestion"];
+    int skipQuestion = document["skipQuestion"];
     int indexOfQuestion = document["indexOfQuestion"];
 
     List<int> nbrOfWrongAnswers = List.castFrom(document['nbrOfWrongAnswers'] as List ?? []);
@@ -256,7 +256,7 @@ class DatabaseService {
     await gameCollection.doc(gameId).update({'skipQuestion' : value });
   }
 
-  Future skipQuestion(String gameId, bool value) async {
+  Future skipQuestion(String gameId, int value) async {
     await gameCollection.doc(gameId).update({'skipQuestion' : value });
   }
 
