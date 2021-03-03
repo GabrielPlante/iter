@@ -48,7 +48,7 @@ class _QuizViewWebDisplayerState extends State<QuizViewWebDisplayer> {
 
   @override
   Widget build(BuildContext context) {
-    print(currentGame.id);
+    databaseService.setHasJoined(widget.quiz.id, false);
     return Scaffold(
       body: currentGame != null  ?
       Container(
