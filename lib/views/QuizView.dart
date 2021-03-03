@@ -116,6 +116,7 @@ class QuizViewState extends State<QuizView> {
       }
       return CircularProgressIndicator();
     }
+    databaseService.setHasJoined(widget.quiz.id, false);
 
     /// In order to verify what the actual fuck is going from the database to your models, shit happens my friend. Sometimes I just don't know what is going on so remember, print(wtf) at every line to know which one is fucking with you.
     //if(currentGame != null) verifyGameByPrintingData();

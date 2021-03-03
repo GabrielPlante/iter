@@ -54,7 +54,7 @@ class DatabaseService {
       List<String> waitingPlayers = List.castFrom(document['waitingPlayers'] as List ?? []);
 
 
-      Quiz quiz = Quiz(document.id, document['quizName'], questions,waitingPlayers, document['imagePath']);
+      Quiz quiz = Quiz(document.id, document['quizName'], questions,waitingPlayers, document['imagePath'], document['hasJoined']);
       quizs.add(quiz);
 
     }
@@ -266,5 +266,9 @@ class DatabaseService {
 
   Future updateIndexQuestion(String gameId, int index, int skipQuestions) async {
     await gameCollection.doc(gameId).update({'indexOfQuestion' : index + 1 + skipQuestions });
+  }
+
+  void setHasJoined(String quizId, bool hasJoined)  {
+    quizCollection.doc(quizId).update({'hasJoined' : hasJoined});
   }
 }

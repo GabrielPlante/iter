@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:iter/models/question.dart';
 import 'package:iter/models/quiz.dart';
 import 'package:iter/views/components/mobileLoginPage.dart';
@@ -122,6 +123,19 @@ class _QuizCardComponentForMobileState extends State<QuizCardComponentForMobile>
                             if (MobileLoginPageState.status == 1){
                               List<String> playersId = List.castFrom(userDocument['waitingPlayers'] as List ?? []);
                               adminStartQuiz(playersId);
+                            } else {
+                              if(userDocument["hasJoined"]){
+                                SchedulerBinding.instance.addPostFrameCallback((_) {
+                                  Navigator.of(context).pop();
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              QuizView(quiz: widget.quiz)
+                                      )
+                                  );
+                                });
+                              }
                             }
                           }
                           List<String> playersId = List.castFrom(
@@ -158,6 +172,7 @@ class _QuizCardComponentForMobileState extends State<QuizCardComponentForMobile>
 
   void adminStartQuiz(List<String> playersId) async {
     databaseService.createGameAndStat(widget.quiz.id, playersId, widget.quiz.questions).then( (value) {
+      databaseService.setHasJoined(widget.quiz.id, true);
       Navigator.of(context).pop();
       Navigator.push(
           context,
