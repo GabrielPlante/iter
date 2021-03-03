@@ -162,7 +162,7 @@ class BodyQuizViewDisplayer extends StatelessWidget {
                       SizedBox(height: 20),
                       Center(child: Text(players[1].name,  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30) )),
                       SizedBox(height: 10),
-                      Center(child: ListingAvancementContainer(questions: questions, avancement: currentGame.avancementByQuestionMap, indexPlayer: 0)),
+                      Center(child: ListingAvancementContainer(questions: questions, avancement: currentGame.avancementByQuestionMap, indexPlayer: 1)),
                     ],
                   ),
                 ),

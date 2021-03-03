@@ -49,9 +49,6 @@ class QuizViewState extends State<QuizView> {
     if (index < questions.length) {
       String displayAvancement =
           " Question ${index + 1} / ${widget.quiz.questions.length} ";
-      String nextQuestion = index + 1 >= questions.length
-          ? "Fin du quizz"
-          : questions[index + 1].questionName;
       Question currentQuestion;
       for (Question q in questions) {
         if (q.id == currentGame.questionsOrder[index]) {
@@ -133,7 +130,7 @@ class QuizViewState extends State<QuizView> {
                     index + 1 != questions.length ? Colors.green : Colors.red,
                 child: FlatButton(
                   onPressed: () {
-                    if(!user.isModerator) databaseService.updateIndexQuestion(currentGame.id, index);
+                    if(!user.isModerator) databaseService.updateIndexQuestion(currentGame.id, index, nbrOfQuestionSkipped);
                     if (index + 1 < questions.length)
                       updateAvailableQuestionMap(
                           questions[index + 1].difficulty);

@@ -260,7 +260,7 @@ class DatabaseService {
     await gameCollection.doc(gameId).update({'skipQuestion' : value });
   }
 
-  Future updateIndexQuestion(String gameId, int index) async {
-    await gameCollection.doc(gameId).update({'indexOfQuestion' : index + 1 });
+  Future updateIndexQuestion(String gameId, int index, int skipQuestions) async {
+    await gameCollection.doc(gameId).update({'indexOfQuestion' : index + 1 + skipQuestions });
   }
 }
