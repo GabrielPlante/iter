@@ -548,6 +548,7 @@ class QuizComponent extends StatelessWidget {
                                   parent.nbrOfQuestionSkipped + 1);
                               final snackBar = SnackBar(
                                 content: Text("Question sautée"),
+                                backgroundColor: Colors.lightBlue
                               );
                               ScaffoldMessenger.of(context)
                                   .showSnackBar(snackBar);
@@ -810,7 +811,7 @@ class ViewAnswerFromPlayer extends StatelessWidget {
               height: MediaQuery.of(context).size.height / 20,
               child: FlatButton(
                 onPressed: () {jumpToNextQuestion();
-                final snackBarAide = SnackBar(content: Text("Une réponse fausse vient d'être retirée !"));
+                final snackBarAide = SnackBar(content: Text("Une réponse fausse vient d'être retirée !"), backgroundColor: Colors.lightBlue);
                 ScaffoldMessenger.of(context).showSnackBar(snackBarAide);
                 },
                 child: Text("Aide"),
