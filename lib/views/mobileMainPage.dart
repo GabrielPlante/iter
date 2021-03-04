@@ -29,25 +29,27 @@ class MobileMainPageState extends State<MobileMainPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-            title: Text('Menu Principal'),
+            title: Center(child: Text('Menu Principal')),
 
         ),
         body: quizs.isEmpty ?
         Center(child: LoadingScreen())
             :
         Container(
-          margin: EdgeInsets.only(top:10),
           decoration: BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage("assets/images/city_wallpaper.jpg"),
-              fit: BoxFit.cover
-            )
+              image: DecorationImage(
+                  image: AssetImage("assets/images/city_wallpaper.jpg"),
+                  fit: BoxFit.cover
+              )
           ),
-          child: ListView.builder(
-              itemCount: quizs.length,
-              itemBuilder: (context, index) {
-                return QuizCardComponentForMobile(quiz: quizs[index],quizJoined : quizs[index].id == quizChosen, parent: this, previousGameId: previousGameId );
-              }),
+          child: Container(
+            margin: EdgeInsets.only(top:10),
+            child: ListView.builder(
+                itemCount: quizs.length,
+                itemBuilder: (context, index) {
+                  return QuizCardComponentForMobile(quiz: quizs[index],quizJoined : quizs[index].id == quizChosen, parent: this, previousGameId: previousGameId );
+                }),
+          ),
         )
     );
   }

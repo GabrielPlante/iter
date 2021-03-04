@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:iter/models/quiz.dart';
 import 'package:iter/models/user.dart';
 import 'package:iter/services/databaseService.dart';
@@ -71,10 +70,8 @@ class WebMainPageState extends State<WebMainPage> {
                 _databaseService.updateUser(WebMainPage.user.id).then(
                         (value) {
                           WebMainPage.user = value;
-                          if(WebMainPage.user.currentGameId == previousGameId){
-                            print("l'update de la game n'est toujours pas correct...");
-                            SchedulerBinding.instance.addPostFrameCallback((_) {
-                              /// in order to refresh and to relance calling update user, it is like a while
+                           if(WebMainPage.user.currentGameId == previousGameId){
+                            Future.delayed(const Duration(seconds: 2), () {
                               setState(() {});
                             });
                           } else{

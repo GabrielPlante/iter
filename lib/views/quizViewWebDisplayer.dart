@@ -7,6 +7,7 @@ import 'package:iter/models/question.dart';
 import 'package:iter/models/quiz.dart';
 import 'package:iter/models/user.dart';
 import 'package:iter/models/stats.dart';
+import 'package:iter/views/components/customAlertDialog.dart';
 import 'package:iter/views/components/loadingScreen.dart';
 import 'package:iter/views/webEndQuiz.dart';
 import 'package:iter/views/webMainPage.dart';
@@ -86,10 +87,55 @@ class _QuizViewWebDisplayerState extends State<QuizViewWebDisplayer> {
           Future.delayed(Duration(seconds: 3), () {
             Navigator.of(context).pop(true);
           });
-          return AlertDialog(
-            title: Text('Franck vient en aide !'),
-          );
+          return CustomAlertDialog();
+        },
+    );
+  }
+
+  void handlerNextQuestion() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        Future.delayed(Duration(seconds: 3), () {
+          Navigator.of(context).pop(true);
         });
+        return Dialog(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20.0)
+            ),
+            child: Stack(
+              overflow: Overflow.visible,
+              alignment: Alignment.topCenter,
+              children: [
+                Container(
+                  height: 250,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(10, 70, 10, 10),
+                    child: Column(
+                      children: [
+                        Text("Changeons un peu les règles !", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25, color: Colors.green),),
+                        SizedBox(height: 15),
+                        Text('La difficulté va changer...', style: TextStyle(fontSize: 20, color: Colors.white)),
+                      ],
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: -60,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(100),
+                    child: SizedBox(
+                      height:120,
+                      width:120,
+                      child: Image.asset("assets/images/977.png", fit: BoxFit.cover),
+                    ),
+                  ),
+                ),
+              ],
+            )
+        );
+      },
+    );
   }
 }
 
@@ -138,47 +184,49 @@ class BodyQuizViewDisplayer extends StatelessWidget {
               children: [
                 Container(
                   width: MediaQuery.of(context).size.width / 3,
-                  height: MediaQuery.of(context).size.height / 3,
+                  height: MediaQuery.of(context).size.height / 2,
                   child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       ClipRRect(
                         borderRadius: BorderRadius.circular(100),
                         child: SizedBox(
-                          height: MediaQuery.of(context).size.height / 8,
-                          width: MediaQuery.of(context).size.width / 12,
+                          height: 250,
+                          width: 250,
                           child: Image.asset( "assets/images/${players[0].id}.jpg",
-                            fit: BoxFit.fill,
+                            fit: BoxFit.cover,
                           ),
 
                         ),
                       ),
                       SizedBox(height: 20),
-                      Center(child: Text(players[0].name, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30) )),
+                      Center(child: Text(players[0].name, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 40) )),
                       SizedBox(height: 10),
-                      Center(child: ListingAvancementContainer(questions: questions, avancement: currentGame.avancementByQuestionMap, indexPlayer: 0)),
+                      Center(child: ListingAvancementContainer(questions: questions, avancement: currentGame.avancementByQuestionMap, indexPlayer: 0, positionInQuiz: currentGame.indexOfQuestion)),
                     ],
                   ),
                 ),
                 Spacer(),
                 Container(
                   width: MediaQuery.of(context).size.width / 3,
-                  height: MediaQuery.of(context).size.height / 3,
+                  height: MediaQuery.of(context).size.height / 2,
                   child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       ClipRRect(
                         borderRadius: BorderRadius.circular(100),
                         child: SizedBox(
-                          height: MediaQuery.of(context).size.height / 8,
-                          width: MediaQuery.of(context).size.width / 12,
+                          height: 250,
+                          width: 250,
                           child: Image.asset("assets/images/${players[1].id}.jpg",
-                            fit: BoxFit.fill,
+                            fit: BoxFit.cover,
                           ),
                         ),
                       ),
                       SizedBox(height: 20),
-                      Center(child: Text(players[1].name,  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30) )),
+                      Center(child: Text(players[1].name,  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 40) )),
                       SizedBox(height: 10),
-                      Center(child: ListingAvancementContainer(questions: questions, avancement: currentGame.avancementByQuestionMap, indexPlayer: 1)),
+                      Center(child: ListingAvancementContainer(questions: questions, avancement: currentGame.avancementByQuestionMap, indexPlayer: 1, positionInQuiz: currentGame.indexOfQuestion)),
                     ],
                   ),
                 ),
@@ -186,7 +234,7 @@ class BodyQuizViewDisplayer extends StatelessWidget {
             ),
           ),
           Container(
-              width: MediaQuery.of(context).size.width / 1.8,
+              width: MediaQuery.of(context).size.width / 3.5,
               margin: EdgeInsets.only(bottom: 100),
               decoration: BoxDecoration(
                   color: currentQuestion.difficulty.color,
@@ -195,7 +243,7 @@ class BodyQuizViewDisplayer extends StatelessWidget {
               child: Visibility(
                 visible: nextQuestion != null,
                 child: Center(
-                    child: Text("Prochaine question :  ${currentGame.indexOfQuestion+2} / ${currentGame.questionsOrder.length} : ${nextQuestion.questionName}", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)
+                    child: Text("La prochaine question sera ${nextQuestion.difficulty.name}", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)
                     )
                 ),
               )
@@ -210,19 +258,20 @@ class ListingAvancementContainer extends StatelessWidget {
   final List<Question> questions;
   final Map<String,List<bool>> avancement;
   final int indexPlayer;
+  final int positionInQuiz;
 
-  ListingAvancementContainer({this.questions,this.avancement, this.indexPlayer});
+  ListingAvancementContainer({this.questions,this.avancement, this.indexPlayer, this.positionInQuiz});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       alignment: Alignment.center,
-      width: MediaQuery.of(context).size.width / 8,
-      height: MediaQuery.of(context).size.height / 30,
+      width: MediaQuery.of(context).size.width / 6,
+      height: MediaQuery.of(context).size.height / 20,
       child: ListView.builder(
           shrinkWrap: true,
           scrollDirection: Axis.horizontal,
-          itemCount: questions.length,
+          itemCount: positionInQuiz,
           itemBuilder: (context, index) {
             return Icon(
               Icons.assignment_turned_in,
