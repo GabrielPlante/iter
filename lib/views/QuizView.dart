@@ -14,6 +14,7 @@ import 'package:iter/views/components/customAlertDialog.dart';
 import 'package:iter/views/components/loadingScreen.dart';
 import 'package:iter/views/components/mobileLoginPage.dart';
 import 'package:iter/views/components/webComponents/chooseNextQuestionPanel.dart';
+import 'package:iter/views/endQuizForAdminMobile.dart';
 import 'package:iter/views/webMainPage.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
@@ -64,8 +65,10 @@ class QuizViewState extends State<QuizView> {
           isDisabledItem: isDisabledItem,
           displayAvancement: displayAvancement,
           imagePath: widget.quiz.imagePath);
-    } else
-      return EndQuizComponent();
+    } else {
+      if(MobileLoginPageState.status == 2)return EndQuizComponent();
+      else return EndQuizForAdminMobile(quiz: widget.quiz, currentGame: currentGame, statOfGame: gameStats);
+    }
   }
 
   @override

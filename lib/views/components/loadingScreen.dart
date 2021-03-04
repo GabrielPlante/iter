@@ -12,17 +12,12 @@ class LoadingScreen extends StatelessWidget {
           )
       ),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SizedBox(),
           LogoDisplayer(),
           CircularProgressIndicator(
             valueColor: AlwaysStoppedAnimation<Color>(Colors.deepPurple),
           ),
-          SizedBox(),
-          Center(
-            child: Text("Logo designed by Starline"),
-          )
         ],
       ),
     );

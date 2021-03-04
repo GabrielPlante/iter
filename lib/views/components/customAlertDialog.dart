@@ -17,7 +17,7 @@ class CustomAlertDialog extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(10, 70, 10, 10),
                 child: Column(
                   children: [
-                    Text("Franck arrive à l'aide !", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25, color: Colors.green),),
+                    Text("Iter  arrive à l'aide !", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25, color: Colors.green),),
                     SizedBox(height: 15),
                     Container(
                       width: 80,
@@ -37,7 +37,7 @@ class CustomAlertDialog extends StatelessWidget {
                   child: SizedBox(
                     height:120,
                     width:120,
-                    child: Image.asset("assets/images/ACEceNhYQpHXAdSciepN.jpg", fit: BoxFit.fill,),
+                    child: Image.asset("assets/images/city_wallpaper.jpg", fit: BoxFit.cover),
                   ),
                 ),
             ),
