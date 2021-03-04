@@ -1,14 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:iter/models/question.dart';
 import 'package:iter/models/quiz.dart';
 import 'package:iter/views/components/mobileLoginPage.dart';
 import '../QuizView.dart';
 import '../mobileMainPage.dart';
 import 'package:iter/services/databaseService.dart';
-
-import 'LogoDisplayer.dart';
 
 class QuizCardComponentForMobile extends StatefulWidget {
   final Quiz quiz;
@@ -130,39 +127,23 @@ class _QuizCardComponentForMobileState extends State<QuizCardComponentForMobile>
                               if(userDocument["hasJoined"]){
                                 databaseService.updateUser(MobileMainPage.user.id).then(
                                         (value) {
-                                      value = MobileMainPage.user;
+                                          MobileMainPage.user = value;
                                       if(MobileMainPage.user.currentGameId == widget.previousGameId){
-                                        print("This is clearly fucked...");
-                                        SchedulerBinding.instance.addPostFrameCallback((_) {
-                                          /// maybe will require to refresh the parent too... and to relance calling update user, its like a while
+                                        print("L'update du currentId n'est pas encore correct ...");
+                                        Future.delayed(const Duration(seconds: 2), () {
                                           setState(() {});
                                         });
                                       } else{
                                         print("you can go now...");
-                                        SchedulerBinding.instance.addPostFrameCallback((_) {
                                           Navigator.of(context).pop();
                                           Navigator.push(
                                               context,
                                               MaterialPageRoute( builder: (context) => QuizView(quiz: widget.quiz) )
                                           );
-                                        });
                                       }
                                     }
                                 );
                               }
-                              return Container(
-                                  child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                      children: [
-                                        Center(
-                                          child: Text("La partie va bientôt commencer !", style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold)),
-                                        ),
-                                        SizedBox(),
-                                        LogoDisplayer(),
-                                        SizedBox()
-                                      ]
-                                  )
-                              );
                             }
                           }
                           List<String> playersId = List.castFrom(
@@ -200,7 +181,6 @@ class _QuizCardComponentForMobileState extends State<QuizCardComponentForMobile>
   void adminStartQuiz(List<String> playersId) async {
     databaseService.createGameAndStat(widget.quiz.id, playersId, widget.quiz.questions).then( (value) {
       databaseService.setHasJoined(widget.quiz.id, true);
-      SchedulerBinding.instance.addPostFrameCallback((_) {
         Navigator.of(context).pop();
         Navigator.push(
             context,
@@ -209,7 +189,6 @@ class _QuizCardComponentForMobileState extends State<QuizCardComponentForMobile>
                     QuizView(quiz: widget.quiz)
             )
         );
-      });
     });
   }
 

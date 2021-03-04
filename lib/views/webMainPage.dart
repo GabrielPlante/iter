@@ -69,21 +69,19 @@ class WebMainPageState extends State<WebMainPage> {
               if(currentQuiz != null && playersReady.length == 2  && query.connectionState == ConnectionState.active && currentQuiz.hasJoined) {
                 _databaseService.updateUser(WebMainPage.user.id).then(
                         (value) {
-                          value = WebMainPage.user;
+                          WebMainPage.user = value;
                           if(WebMainPage.user.currentGameId == previousGameId){
-                            print("This is clearly fucked...");
+                            print("l'update de la game n'est toujours pas correct...");
                             SchedulerBinding.instance.addPostFrameCallback((_) {
                               /// in order to refresh and to relance calling update user, it is like a while
                               setState(() {});
                             });
                           } else{
-                            SchedulerBinding.instance.addPostFrameCallback((_) {
-                              Navigator.of(context).pop();
-                              Navigator.push(
+                            Navigator.of(context).pop();
+                            Navigator.push(
                                   context,
                                   MaterialPageRoute( builder: (context) => QuizViewWebDisplayer(quiz: currentQuiz, players: playersReady) )
-                              );
-                            });
+                            );
                           }
                         }
                 );

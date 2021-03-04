@@ -105,7 +105,6 @@ class DatabaseService {
     String currentGameId;
     if(document['currentGameId'] == null) currentGameId = "none";
     else currentGameId = document['currentGameId'];
-
     int fontSize = document["fontSize"];
 
 
