@@ -162,6 +162,7 @@ class QuizViewState extends State<QuizView> {
                       gameStats.nbrOfWrongAnswers.add(nbrOfDeletedItem);
                       isDisabledItem = [false, false, false, false];
                       playerAnsweredQuestion = false;
+                      databaseService.updateStats(currentGame.id, gameStats.nbrOfWrongAnswers, gameStats.nbrOfDeletedAnswers);
                     });
                   },
                   child: Row(children: [
