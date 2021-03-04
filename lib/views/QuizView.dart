@@ -125,7 +125,8 @@ class QuizViewState extends State<QuizView> {
     /// In order to verify what the actual fuck is going from the database to your models, shit happens my friend. Sometimes I just don't know what is going on so remember, print(wtf) at every line to know which one is fucking with you.
     //if(currentGame != null) verifyGameByPrintingData();
     if (index >= questions.length) {
-      return EndQuizComponent();
+      if(MobileLoginPageState.status == 2)return EndQuizComponent();
+      else return EndQuizForAdminMobile(quiz: widget.quiz, currentGame: currentGame, statOfGame: gameStats);
     }
     return Scaffold(
       appBar: AppBar(
@@ -159,7 +160,7 @@ class QuizViewState extends State<QuizView> {
                       for (int i = 0; i != 4; i++) {
                         if (isDisabledItem[i]) nbrOfDeletedItem++;
                       }
-                      gameStats.nbrOfDeletedAnswers.add(nbrOfDeletedItem);
+                      gameStats.nbrOfWrongAnswers.add(nbrOfDeletedItem);
                       isDisabledItem = [false, false, false, false];
                       playerAnsweredQuestion = false;
                       databaseService.updateStats(currentGame.id, gameStats.nbrOfWrongAnswers, gameStats.nbrOfDeletedAnswers);

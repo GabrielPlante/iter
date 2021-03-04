@@ -37,7 +37,7 @@ class CustomAlertDialog extends StatelessWidget {
                   child: SizedBox(
                     height:120,
                     width:120,
-                    child: Image.asset("assets/images/city_wallpaper.jpg", fit: BoxFit.cover),
+                    child: Image.asset("assets/images/977.png", fit: BoxFit.cover),
                   ),
                 ),
             ),

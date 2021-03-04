@@ -65,10 +65,13 @@ class _QuizViewWebDisplayerState extends State<QuizViewWebDisplayer> {
 
             DocumentSnapshot document = documentSnapshot.data;
             List updateDatas = databaseService.updateGameAndStat(document);
+            List<String> previousQuestionOrder = currentGame.questionsOrder;
             currentGame = updateDatas[0];
             gameStats = updateDatas[1];
 
+            if(currentGame.indexOfQuestion >= questions.length) endQuizForWeb();
             if(currentGame.getQuestionHelp) handlerHelpDisplayer();
+            if(previousQuestionOrder != currentGame.questionsOrder) handlerNextQuestion();
 
             if(currentGame.indexOfQuestion >= widget.quiz.questions.length) return WebEndQuiz();
             else return BodyQuizViewDisplayer(quiz: widget.quiz, questions: questions, currentGame: currentGame, players: widget.players);
@@ -80,19 +83,32 @@ class _QuizViewWebDisplayerState extends State<QuizViewWebDisplayer> {
     );
   }
 
+  void endQuizForWeb() {
+    WidgetsBinding.instance.addPostFrameCallback((_){
+      Navigator.of(context).pop();
+      Navigator.push(
+          context,
+          MaterialPageRoute( builder: (context) => WebEndQuiz(currentGame: currentGame) )
+      );
+    });
+  }
+
   handlerHelpDisplayer() {
-    showDialog(
-        context: context,
-        builder: (context) {
-          Future.delayed(Duration(seconds: 3), () {
-            Navigator.of(context).pop(true);
-          });
-          return CustomAlertDialog();
-        },
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_){
+      showDialog(
+          context: context,
+          builder: (context) {
+            Future.delayed(Duration(seconds: 3), () {
+              Navigator.of(context).pop(true);
+            });
+            return CustomAlertDialog();
+          },
+      );
+    });
   }
 
   void handlerNextQuestion() {
+    WidgetsBinding.instance.addPostFrameCallback((_){
     showDialog(
       context: context,
       builder: (context) {
@@ -136,6 +152,7 @@ class _QuizViewWebDisplayerState extends State<QuizViewWebDisplayer> {
         );
       },
     );
+    });
   }
 }
 
@@ -174,7 +191,7 @@ class BodyQuizViewDisplayer extends StatelessWidget {
                 borderRadius: BorderRadius.circular(30)
               ),
               child: Center(
-                  child: Text("Question ${currentGame.indexOfQuestion+1} / ${currentGame.questionsOrder.length} : ${currentQuestion.questionName}", style: TextStyle(fontSize: 45, fontWeight: FontWeight.bold)
+                  child: Text(currentQuestion.questionName, style: TextStyle(fontSize: 45, fontWeight: FontWeight.bold)
                   )
               )
           ),
@@ -233,20 +250,20 @@ class BodyQuizViewDisplayer extends StatelessWidget {
               ],
             ),
           ),
-          Container(
-              width: MediaQuery.of(context).size.width / 3.5,
-              margin: EdgeInsets.only(bottom: 100),
-              decoration: BoxDecoration(
-                  color: currentQuestion.difficulty.color,
-                  borderRadius: BorderRadius.circular(30)
-              ),
-              child: Visibility(
-                visible: nextQuestion != null,
+          Visibility(
+            visible: nextQuestion != null,
+            child: Container(
+                width: MediaQuery.of(context).size.width / 3.5,
+                margin: EdgeInsets.only(bottom: 100),
+                decoration: BoxDecoration(
+                    color: nextQuestion.difficulty.color,
+                    borderRadius: BorderRadius.circular(30)
+                ),
                 child: Center(
                     child: Text("La prochaine question sera ${nextQuestion.difficulty.name}", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)
                     )
-                ),
-              )
+                )
+            ),
           )
         ],
       ),

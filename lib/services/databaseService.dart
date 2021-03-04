@@ -277,6 +277,6 @@ class DatabaseService {
   }
 
   Future updateStats(String gameId, List<int> nbrOfWrongAnswers, List<int> nbrOfDeletedAnswers) async {
-    await gameCollection.doc(gameId).update({'nbrOfWrongAnswers' :nbrOfWrongAnswers,  'nbrOfDeletedAnswers' : nbrOfDeletedAnswers});
+    await gameCollection.doc(gameId).update({'nbrOfWrongAnswers' : nbrOfWrongAnswers,  'nbrOfDeletedAnswers' : nbrOfDeletedAnswers});
   }
 }
