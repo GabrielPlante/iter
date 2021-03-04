@@ -160,7 +160,7 @@ class QuizViewState extends State<QuizView> {
                       for (int i = 0; i != 4; i++) {
                         if (isDisabledItem[i]) nbrOfDeletedItem++;
                       }
-                      gameStats.nbrOfWrongAnswers.add(nbrOfDeletedItem);
+                      gameStats.nbrOfDeletedAnswers.add(nbrOfDeletedItem);
                       isDisabledItem = [false, false, false, false];
                       playerAnsweredQuestion = false;
                       databaseService.updateStats(currentGame.id, gameStats.nbrOfWrongAnswers, gameStats.nbrOfDeletedAnswers);
