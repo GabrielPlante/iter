@@ -275,4 +275,8 @@ class DatabaseService {
     if(hasJoined) quizCollection.doc(quizId).update({'hasJoined' : hasJoined });
     else quizCollection.doc(quizId).update({'hasJoined' : hasJoined, 'waitingPlayers' : [] });
   }
+
+  Future updateStats(String gameId, List<int> nbrOfWrongAnswers, List<int> nbrOfDeletedAnswers) async {
+    await gameCollection.doc(gameId).update({'nbrOfWrongAnswers' :nbrOfWrongAnswers,  'nbrOfDeletedAnswers' : nbrOfDeletedAnswers});
+  }
 }
