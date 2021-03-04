@@ -39,6 +39,10 @@ class DatabaseService {
     return questions;
   }
 
+  Future<void> updateQuestionDifficulty(String quizId, String questionId, Difficulty newDifficulty) async {
+    await quizCollection.doc(quizId).collection("questions").doc(questionId).update( {'difficulty ' : newDifficulty} );
+  }
+
 
 
   Future<List<Quiz>> get allQuiz async {
