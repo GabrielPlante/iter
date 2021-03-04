@@ -3,6 +3,7 @@ import 'package:iter/models/quiz.dart';
 import 'package:iter/models/user.dart';
 import 'package:iter/services/databaseService.dart';
 import 'package:iter/views/components/mobileLoginPage.dart';
+import 'components/loadingScreen.dart';
 import 'components/quizCardComponentForMobile.dart';
 
 class MobileMainPage extends StatefulWidget {
@@ -32,7 +33,7 @@ class MobileMainPageState extends State<MobileMainPage> {
 
         ),
         body: quizs.isEmpty ?
-        Center(child: CircularProgressIndicator())
+        Center(child: LoadingScreen())
             :
         Container(
           margin: EdgeInsets.only(top:10),

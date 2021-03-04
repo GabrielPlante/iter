@@ -7,6 +7,7 @@ import 'package:iter/models/question.dart';
 import 'package:iter/models/quiz.dart';
 import 'package:iter/models/user.dart';
 import 'package:iter/models/stats.dart';
+import 'package:iter/views/components/loadingScreen.dart';
 import 'package:iter/views/webEndQuiz.dart';
 import 'package:iter/views/webMainPage.dart';
 import 'package:iter/services/databaseService.dart';
@@ -58,7 +59,7 @@ class _QuizViewWebDisplayerState extends State<QuizViewWebDisplayer> {
           builder: (context, AsyncSnapshot<DocumentSnapshot> documentSnapshot) {
 
             if (!documentSnapshot.hasData) {
-              return Center(child: CircularProgressIndicator());
+              return Center(child: LoadingScreen());
             }
 
             DocumentSnapshot document = documentSnapshot.data;
@@ -74,7 +75,7 @@ class _QuizViewWebDisplayerState extends State<QuizViewWebDisplayer> {
         ),
       )
           :
-      CircularProgressIndicator(),
+      LoadingScreen(),
     );
   }
 

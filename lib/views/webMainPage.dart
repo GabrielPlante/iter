@@ -5,6 +5,7 @@ import 'package:iter/models/quiz.dart';
 import 'package:iter/models/user.dart';
 import 'package:iter/services/databaseService.dart';
 import 'package:iter/views/components/LogoDisplayer.dart';
+import 'package:iter/views/components/loadingScreen.dart';
 import 'package:iter/views/quizViewWebDisplayer.dart';
 
 class WebMainPage extends StatefulWidget {
@@ -118,7 +119,7 @@ class WebMainPageState extends State<WebMainPage> {
           ),
         )
             :
-        CircularProgressIndicator(),
+        LoadingScreen(),
         );
   }
 

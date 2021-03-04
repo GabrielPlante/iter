@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:iter/main.dart';
 
 class LogoDisplayer extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     bool isWeb = MyApp.isWebDevice;

@@ -10,6 +10,7 @@ import 'package:iter/models/quiz.dart';
 import 'package:iter/models/stats.dart';
 import 'package:iter/models/user.dart';
 import 'package:iter/services/databaseService.dart';
+import 'package:iter/views/components/loadingScreen.dart';
 import 'package:iter/views/components/mobileLoginPage.dart';
 import 'package:iter/views/components/webComponents/chooseNextQuestionPanel.dart';
 import 'package:iter/views/webMainPage.dart';
@@ -114,7 +115,7 @@ class QuizViewState extends State<QuizView> {
         print("No Game find... Searching...");
         newInitGame();
       }
-      return CircularProgressIndicator();
+      return LoadingScreen();
     }
 
     /// In order to verify what the actual fuck is going from the database to your models, shit happens my friend. Sometimes I just don't know what is going on so remember, print(wtf) at every line to know which one is fucking with you.
