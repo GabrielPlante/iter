@@ -808,7 +808,10 @@ class ViewAnswerFromPlayer extends StatelessWidget {
               width: MediaQuery.of(context).size.width / 6,
               height: MediaQuery.of(context).size.height / 20,
               child: FlatButton(
-                onPressed: () => jumpToNextQuestion(),
+                onPressed: () {jumpToNextQuestion();
+                final snackBarAide = SnackBar(content: Text("Une réponse fausse vient d'être retirée !"));
+                ScaffoldMessenger.of(context).showSnackBar(snackBarAide);
+                },
                 child: Text("Aide"),
               ),
             ),
