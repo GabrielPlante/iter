@@ -10,6 +10,7 @@ import 'package:iter/models/quiz.dart';
 import 'package:iter/models/stats.dart';
 import 'package:iter/models/user.dart';
 import 'package:iter/services/databaseService.dart';
+import 'package:iter/views/components/customAlertDialog.dart';
 import 'package:iter/views/components/loadingScreen.dart';
 import 'package:iter/views/components/mobileLoginPage.dart';
 import 'package:iter/views/components/webComponents/chooseNextQuestionPanel.dart';
@@ -210,7 +211,10 @@ class QuizViewState extends State<QuizView> {
                   }
                 }
                 if (MobileLoginPageState.status == 2 &&
-                    currentGame.getQuestionHelp) getQuestionHelp();
+                    currentGame.getQuestionHelp) {
+                  showHelpAlert();
+                  getQuestionHelp();
+                }
                 if (MobileLoginPageState.status == 2 &&
                     currentGame.skipQuestion > 0)
                   skipQuestionForPatient(currentGame.skipQuestion);
@@ -448,6 +452,17 @@ class QuizViewState extends State<QuizView> {
         }
       });
     });
+  }
+
+  void showHelpAlert() {
+    showDialog(
+        context: context,
+        builder: (context) {
+          Future.delayed(Duration(seconds: 3), () {
+            Navigator.of(context).pop(true);
+          });
+          return CustomAlertDialog();
+        });
   }
 }
 
