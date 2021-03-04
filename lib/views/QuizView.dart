@@ -455,7 +455,8 @@ class QuizViewState extends State<QuizView> {
   }
 
   void showHelpAlert() {
-    showDialog(
+    WidgetsBinding.instance.addPostFrameCallback((_){
+      showDialog(
         context: context,
         builder: (context) {
           Future.delayed(Duration(seconds: 3), () {
@@ -463,6 +464,7 @@ class QuizViewState extends State<QuizView> {
           });
           return CustomAlertDialog();
         });
+      });
   }
 }
 
