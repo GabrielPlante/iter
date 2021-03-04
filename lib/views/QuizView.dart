@@ -419,30 +419,34 @@ class QuizViewState extends State<QuizView> {
     });*/
   }
 
+  bool isValid(int id){
+    return isSelectedItem[id] == false && isDisabledItem[id] == false;
+  }
+
   void getQuestionHelp() async {
     await databaseService.questionHelp(currentGame.id, false);
     Future.delayed(const Duration(seconds: 1), () {
       setState(() {
         //nextQuestion(currentGame.questionsOrder[index]);
-        var numberOfNotSelectedItem = 0;
+        var numberOfValidItem = 0;
         for (int i = 0; i != 4; i++) {
-          if (isSelectedItem[i] == false && isDisabledItem[i] == false) {
-            numberOfNotSelectedItem++;
+          if (isValid(i)) {
+            numberOfValidItem++;
           }
         }
-        if (numberOfNotSelectedItem >= 2) {
+        if (numberOfValidItem > 1) {
           var random = new Random();
-          var disabledItem = random.nextInt(numberOfNotSelectedItem - 1);
+          var disabledItem = random.nextInt(numberOfValidItem - 1);
           var disabledItemId = 0;
-          for (int i = 0; disabledItemId != disabledItem; i++) {
-            if (isSelectedItem[i] == false && isDisabledItem[i] == false) {
-              disabledItemId++;
-            }
+          while(!isValid(disabledItemId)) {disabledItemId++;}
+          for (int i = 0; i != disabledItem; i++) {
+            disabledItemId++;
+            while(!isValid(disabledItemId)) {disabledItemId++;}
           }
           if (questions[index].answers[disabledItemId] ==
               questions[index].correctAnswer) {
-            while (isSelectedItem[++disabledItemId] == true ||
-                isDisabledItem[disabledItemId] == true) {}
+            disabledItemId++;
+            while (!isValid(disabledItemId)) {disabledItemId++;}
           }
           isDisabledItem[disabledItemId] = true;
           /*index++;
@@ -634,21 +638,21 @@ class QuizComponent extends StatelessWidget {
                 opacity: isDisabledItem[2] ? 0 : 1,
                 child: FlatButton(
                   onPressed: () {
-                    selectedAndVerifyAnswer(question.answers[3], 2);
+                    selectedAndVerifyAnswer(question.answers[2], 2);
                   },
                   height: MobileLoginPageState.status == 1
                       ? MediaQuery.of(context).size.height / 6
                       : MediaQuery.of(context).size.height / 4,
                   minWidth: MediaQuery.of(context).size.width / 3,
                   color: isSelectedItem[2] &&
-                          question.correctAnswer == question.answers[3]
+                          question.correctAnswer == question.answers[2]
                       ? Colors.green
                       : isSelectedItem[2]
                           ? Colors.red
                           : Theme.of(context).backgroundColor,
                   disabledColor: Colors.grey,
                   hoverColor: isSelectedItem[2] &&
-                          question.correctAnswer == question.answers[3]
+                          question.correctAnswer == question.answers[2]
                       ? Colors.green
                       : isSelectedItem[2]
                           ? Colors.red
@@ -656,7 +660,7 @@ class QuizComponent extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15)),
                   child:
-                      Text(question.answers[3], style: TextStyle(fontSize: 20)),
+                      Text(question.answers[2], style: TextStyle(fontSize: 20)),
                 ),
               ),
               SizedBox(width: 25),
@@ -664,21 +668,21 @@ class QuizComponent extends StatelessWidget {
                 opacity: isDisabledItem[3] ? 0 : 1,
                 child: FlatButton(
                   onPressed: () {
-                    selectedAndVerifyAnswer(question.answers[2], 3);
+                    selectedAndVerifyAnswer(question.answers[3], 3);
                   },
                   height: MobileLoginPageState.status == 1
                       ? MediaQuery.of(context).size.height / 6
                       : MediaQuery.of(context).size.height / 4,
                   minWidth: MediaQuery.of(context).size.width / 3,
                   color: isSelectedItem[3] &&
-                          question.correctAnswer == question.answers[2]
+                          question.correctAnswer == question.answers[3]
                       ? Colors.green
                       : isSelectedItem[3]
                           ? Colors.red
                           : Theme.of(context).backgroundColor,
                   disabledColor: Colors.grey,
                   hoverColor: isSelectedItem[3] &&
-                          question.correctAnswer == question.answers[2]
+                          question.correctAnswer == question.answers[3]
                       ? Colors.green
                       : isSelectedItem[3]
                           ? Colors.red
@@ -686,7 +690,7 @@ class QuizComponent extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15)),
                   child:
-                      Text(question.answers[2], style: TextStyle(fontSize: 20)),
+                      Text(question.answers[3], style: TextStyle(fontSize: 20)),
                 ),
               ),
             ],
