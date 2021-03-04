@@ -64,7 +64,7 @@ class DatabaseService {
 
   Quiz updateQuizPlayers(Quiz quiz, DocumentSnapshot doc) {
     List<String> waitingPlayers = List.castFrom(doc['waitingPlayers'] as List ?? []);
-
+    quiz.hasJoined = doc['hasJoined'];
     quiz.waitingPlayers = waitingPlayers;
 
     return quiz;

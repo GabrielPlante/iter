@@ -8,12 +8,15 @@ import '../QuizView.dart';
 import '../mobileMainPage.dart';
 import 'package:iter/services/databaseService.dart';
 
+import 'LogoDisplayer.dart';
+
 class QuizCardComponentForMobile extends StatefulWidget {
   final Quiz quiz;
   final bool quizJoined;
   final MobileMainPageState parent;
+  final String previousGameId;
 
-  QuizCardComponentForMobile({this.quiz, this.quizJoined, this.parent});
+  QuizCardComponentForMobile({this.quiz, this.quizJoined, this.parent, this.previousGameId});
 
   @override
   _QuizCardComponentForMobileState createState() => _QuizCardComponentForMobileState();
@@ -125,17 +128,41 @@ class _QuizCardComponentForMobileState extends State<QuizCardComponentForMobile>
                               adminStartQuiz(playersId);
                             } else {
                               if(userDocument["hasJoined"]){
-                                SchedulerBinding.instance.addPostFrameCallback((_) {
-                                  Navigator.of(context).pop();
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              QuizView(quiz: widget.quiz)
-                                      )
-                                  );
-                                });
+                                databaseService.updateUser(MobileMainPage.user.id).then(
+                                        (value) {
+                                      value = MobileMainPage.user;
+                                      if(MobileMainPage.user.currentGameId == widget.previousGameId){
+                                        print("This is clearly fucked...");
+                                        SchedulerBinding.instance.addPostFrameCallback((_) {
+                                          /// maybe will require to refresh the parent too... and to relance calling update user, its like a while
+                                          setState(() {});
+                                        });
+                                      } else{
+                                        print("you can go now...");
+                                        SchedulerBinding.instance.addPostFrameCallback((_) {
+                                          Navigator.of(context).pop();
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute( builder: (context) => QuizView(quiz: widget.quiz) )
+                                          );
+                                        });
+                                      }
+                                    }
+                                );
                               }
+                              return Container(
+                                  child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        Center(
+                                          child: Text("La partie va bientôt commencer !", style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold)),
+                                        ),
+                                        SizedBox(),
+                                        LogoDisplayer(),
+                                        SizedBox()
+                                      ]
+                                  )
+                              );
                             }
                           }
                           List<String> playersId = List.castFrom(

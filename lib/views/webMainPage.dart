@@ -17,6 +17,7 @@ class WebMainPageState extends State<WebMainPage> {
   final DatabaseService _databaseService = DatabaseService();
   List<Quiz> quizs = [];
   List<User> allUser = [];
+  String previousGameId = '';
   String quizChosenByModerator = '';
 
   @override
@@ -66,13 +67,39 @@ class WebMainPageState extends State<WebMainPage> {
                 }
               }
               if(currentQuiz != null && playersReady.length == 2  && query.connectionState == ConnectionState.active && currentQuiz.hasJoined) {
-                SchedulerBinding.instance.addPostFrameCallback((_) {
-                  Navigator.of(context).pop();
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute( builder: (context) => QuizViewWebDisplayer(quiz: currentQuiz, players: playersReady) )
-                  );
-                });
+                _databaseService.updateUser(WebMainPage.user.id).then(
+                        (value) {
+                          value = WebMainPage.user;
+                          if(WebMainPage.user.currentGameId == previousGameId){
+                            print("This is clearly fucked...");
+                            SchedulerBinding.instance.addPostFrameCallback((_) {
+                              /// in order to refresh and to relance calling update user, it is like a while
+                              setState(() {});
+                            });
+                          } else{
+                            SchedulerBinding.instance.addPostFrameCallback((_) {
+                              Navigator.of(context).pop();
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute( builder: (context) => QuizViewWebDisplayer(quiz: currentQuiz, players: playersReady) )
+                              );
+                            });
+                          }
+                        }
+                );
+                return Container(
+                    child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Center(
+                            child: Text("La partie va bientôt commencer !", style: TextStyle(fontSize: 50, fontWeight: FontWeight.bold)),
+                          ),
+                          SizedBox(),
+                          LogoDisplayer(),
+                          SizedBox()
+                        ]
+                    )
+                );
               }
 
               if(currentQuiz != null && playersReady.length == 1 ) return BodyWebMainView(quiz: currentQuiz, users: playersReady);
@@ -105,6 +132,7 @@ class WebMainPageState extends State<WebMainPage> {
       if(userResult.isInterfaceWeb) {
         setState(() {
           WebMainPage.user = userResult;
+          previousGameId = userResult.currentGameId;
         });
       }
     }

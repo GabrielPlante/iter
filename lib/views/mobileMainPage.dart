@@ -16,6 +16,7 @@ class MobileMainPageState extends State<MobileMainPage> {
   final DatabaseService _databaseService = DatabaseService();
   List<Quiz> quizs = [];
   String quizChosen = '';
+  String previousGameId = '';
 
   @override
   void initState() {
@@ -44,7 +45,7 @@ class MobileMainPageState extends State<MobileMainPage> {
           child: ListView.builder(
               itemCount: quizs.length,
               itemBuilder: (context, index) {
-                return QuizCardComponentForMobile(quiz: quizs[index],quizJoined : quizs[index].id == quizChosen, parent: this );
+                return QuizCardComponentForMobile(quiz: quizs[index],quizJoined : quizs[index].id == quizChosen, parent: this, previousGameId: previousGameId );
               }),
         )
     );
@@ -56,6 +57,7 @@ class MobileMainPageState extends State<MobileMainPage> {
       if(userResult.isModerator == (MobileLoginPageState.status == 1) && !userResult.isInterfaceWeb) {
         setState(() {
           MobileMainPage.user = userResult;
+          previousGameId = MobileMainPage.user.currentGameId;
         });
       }
     }
