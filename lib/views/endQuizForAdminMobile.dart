@@ -32,35 +32,37 @@ class EndQuizForAdminMobileState extends State<EndQuizForAdminMobile> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Column(
-        children: [
-          /// add design trash shit
-          Container(
-            margin: EdgeInsets.only(top:10),
-            decoration: BoxDecoration(
-                image: DecorationImage(
-                    image: AssetImage("assets/images/city_wallpaper.jpg"),
-                    fit: BoxFit.cover
-                )
+    return Scaffold(
+      body: Container(
+        child: Column(
+          children: [
+            /// add design trash shit
+            Container(
+              margin: EdgeInsets.only(top:10),
+              decoration: BoxDecoration(
+                  image: DecorationImage(
+                      image: AssetImage("assets/images/city_wallpaper.jpg"),
+                      fit: BoxFit.cover
+                  )
+              ),
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height / 1.5,
+              child: ListView.builder(
+                  itemCount: widget.quiz.questions.length,
+                  itemBuilder: (context, index) {
+                    Question question = widget.quiz.questions.firstWhere( (element) => element.id == widget.currentGame.questionsOrder[index] );
+                    return QuestionChanger(question: question, index: index, statOfGame: widget.statOfGame, hasBeenSkipped: !widget.currentGame.avancementByQuestionMap[question.id][0] && !widget.currentGame.avancementByQuestionMap[question.id][1], parent: this, selectedDifficulty: newDifficulties[index]);
+                  },
+              ),
             ),
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height / 1.5,
-            child: ListView.builder(
-                itemCount: widget.quiz.questions.length,
-                itemBuilder: (context, index) {
-                  Question question = widget.quiz.questions.firstWhere( (element) => element.id == widget.currentGame.questionsOrder[index] );
-                  return QuestionChanger(question: question, index: index, statOfGame: widget.statOfGame, hasBeenSkipped: !widget.currentGame.avancementByQuestionMap[question.id][0] && !widget.currentGame.avancementByQuestionMap[question.id][1], parent: this, selectedDifficulty: newDifficulties[index]);
-                },
-            ),
-          ),
-          Center(
-            child: FlatButton(
-              onPressed: () => endGame(),
-              child: Text("Terminer"),
-            ),
-          )
-        ],
+            Center(
+              child: FlatButton(
+                onPressed: () => endGame(),
+                child: Text("Terminer"),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }

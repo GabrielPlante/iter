@@ -164,6 +164,7 @@ class BodyQuizViewDisplayer extends StatelessWidget {
     Question currentQuestion = quiz.questions.firstWhere((element) => element.id == currentGame.questionsOrder[currentGame.indexOfQuestion]);
     Question nextQuestion;
     if(currentGame.indexOfQuestion + 1 < quiz.questions.length )  nextQuestion = quiz.questions.firstWhere((element) => element.id ==currentGame.questionsOrder[currentGame.indexOfQuestion + 1]);
+    if(nextQuestion != null) print(" there is another one !");
 
     return Container(
       decoration: BoxDecoration(
@@ -250,11 +251,11 @@ class BodyQuizViewDisplayer extends StatelessWidget {
                 width: MediaQuery.of(context).size.width / 3.5,
                 margin: EdgeInsets.only(bottom: 100),
                 decoration: BoxDecoration(
-                    color: nextQuestion.difficulty.color,
+                    color: nextQuestion != null ? nextQuestion.difficulty.color : Colors.white,
                     borderRadius: BorderRadius.circular(30)
                 ),
                 child: Center(
-                    child: Text("La prochaine question sera ${nextQuestion.difficulty.name}", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)
+                    child: Text(nextQuestion!=null ? "La prochaine question sera ${nextQuestion.difficulty.name}" : "no more quesiton", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)
                     )
                 )
             ),
