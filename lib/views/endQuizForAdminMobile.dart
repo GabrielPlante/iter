@@ -33,6 +33,7 @@ class EndQuizForAdminMobileState extends State<EndQuizForAdminMobile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: Text("Fin du quiz !")),
       body: Container(
         child: Column(
           children: [
@@ -110,7 +111,7 @@ class QuestionChanger extends StatelessWidget {
           Center(
             child: Text(question.questionName)
           ),
-          hasBeenSkipped ?
+          !hasBeenSkipped ?
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [

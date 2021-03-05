@@ -68,7 +68,7 @@ class QuizViewState extends State<QuizView> {
           displayAvancement: displayAvancement,
           imagePath: widget.quiz.imagePath);
     } else {
-      if(MobileLoginPageState.status == 2)return EndQuizComponent();
+      if(MobileLoginPageState.status == 2)return EndQuizComponent(currentGame: currentGame);
       else return EndQuizForAdminMobile(quiz: widget.quiz, currentGame: currentGame, statOfGame: gameStats);
     }
   }
@@ -127,7 +127,7 @@ class QuizViewState extends State<QuizView> {
     /// In order to verify what the actual fuck is going from the database to your models, shit happens my friend. Sometimes I just don't know what is going on so remember, print(wtf) at every line to know which one is fucking with you.
     //if(currentGame != null) verifyGameByPrintingData();
     if (index >= questions.length) {
-      if(MobileLoginPageState.status == 2)return EndQuizComponent();
+      if(MobileLoginPageState.status == 2)return EndQuizComponent(currentGame: currentGame);
       else return EndQuizForAdminMobile(quiz: widget.quiz, currentGame: currentGame, statOfGame: gameStats);
     }
     return Scaffold(
@@ -573,7 +573,7 @@ class QuizComponent extends StatelessWidget {
                           )
                         ],
                       ))),
-            ) 
+            )
           : SizedBox(),
       SizedBox(height: MediaQuery.of(context).size.height / 15),
       Column(
@@ -728,17 +728,19 @@ class EndQuizComponent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-         children: [
-           Center(child: Text("Fin du quiz !", style: TextStyle(fontWeight: FontWeight.bold ,fontSize: 30))),
-           SizedBox(height: 10.0,),
-           Center(child: Text("Vote score : ${currentGame.indexOfQuestion - currentGame.skipQuestion - 1}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30))),
-           SizedBox(height:10.0),
-           LogoDisplayer(),
-         ],
-        )
+    return Scaffold(
+      body: Container(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+           children: [
+             Center(child: Text("Fin du quiz !", style: TextStyle(fontWeight: FontWeight.bold ,fontSize: 30))),
+             SizedBox(height: 10.0,),
+             Center(child: Text("Vote score : ${currentGame.indexOfQuestion - currentGame.skipQuestion - 1}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30))),
+             SizedBox(height:10.0),
+             LogoDisplayer(),
+           ],
+          )
+      ),
     );
   }
 }
