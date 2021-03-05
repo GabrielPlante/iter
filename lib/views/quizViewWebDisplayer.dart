@@ -74,7 +74,7 @@ class _QuizViewWebDisplayerState extends State<QuizViewWebDisplayer> {
             gameStats = updateDatas[1];
 
 
-            if(currentGame.getQuestionHelp) handlerHelpDisplayer();
+            if(currentGame.getQuestionHelp && currentGame.skipQuestion == 0) handlerHelpDisplayer();
             if(currentGame.indexOfQuestion == currentIndex && nextQuestionId != null && nextQuestionId != currentGame.questionsOrder[currentGame.indexOfQuestion + 1]) handlerNextQuestion();
 
             if(currentGame.indexOfQuestion >= widget.quiz.questions.length) return WebEndQuiz();

@@ -10,6 +10,7 @@ import 'package:iter/models/quiz.dart';
 import 'package:iter/models/stats.dart';
 import 'package:iter/models/user.dart';
 import 'package:iter/services/databaseService.dart';
+import 'package:iter/views/components/LogoDisplayer.dart';
 import 'package:iter/views/components/customAlertDialog.dart';
 import 'package:iter/views/components/loadingScreen.dart';
 import 'package:iter/views/components/mobileLoginPage.dart';
@@ -18,6 +19,7 @@ import 'package:iter/views/endQuizForAdminMobile.dart';
 import 'package:iter/views/webMainPage.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
+import 'components/test.dart';
 import 'mobileMainPage.dart';
 
 class QuizView extends StatefulWidget {
@@ -566,7 +568,7 @@ class QuizComponent extends StatelessWidget {
                           )
                         ],
                       ))),
-            )
+            ) 
           : SizedBox(),
       SizedBox(height: MediaQuery.of(context).size.height / 15),
       Column(
@@ -715,9 +717,24 @@ class QuizComponent extends StatelessWidget {
 }
 
 class EndQuizComponent extends StatelessWidget {
+  final Game currentGame;
+
+  EndQuizComponent({this.currentGame});
+
   @override
   Widget build(BuildContext context) {
-    return Center(child: Text("End of the quiz"));
+    return Container(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+         children: [
+           Center(child: Text("Fin du quiz !", style: TextStyle(fontWeight: FontWeight.bold ,fontSize: 30))),
+           SizedBox(height: 10.0,),
+           Center(child: Text("Vote score : ${currentGame.indexOfQuestion - currentGame.skipQuestion - 1}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30))),
+           SizedBox(height:10.0),
+           LogoDisplayer(),
+         ],
+        )
+    );
   }
 }
 
