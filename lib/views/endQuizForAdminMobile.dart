@@ -74,11 +74,11 @@ class EndQuizForAdminMobileState extends State<EndQuizForAdminMobile> {
     });
   }
 
-  void endGame() async {
+  void endGame()  {
     for(Question q in widget.quiz.questions) {
       Difficulty dif = newDifficulties[widget.currentGame.questionsOrder.indexOf(q.id)];
       if(q.difficulty == dif ) {
-        await db.updateQuestionDifficulty(widget.quiz.id, q.id, dif);
+         db.updateQuestionDifficulty(widget.quiz.id, q.id, dif);
       }
 
       Navigator.of(context).pop();

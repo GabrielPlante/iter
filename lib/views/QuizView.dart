@@ -730,6 +730,12 @@ class EndQuizComponent extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
+          decoration: BoxDecoration(
+              image: DecorationImage(
+                  image: AssetImage("assets/images/city_wallpaper.jpg"),
+                  fit: BoxFit.cover
+              )
+          ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
            children: [

@@ -19,8 +19,9 @@ class WebEndQuiz extends StatelessWidget {
         ),
         child: Center(
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text("Fin du quiz, merci d'avoir participé !", ),
+              Text("Fin du quiz, merci d'avoir participé !", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 40)),
               SizedBox(height: 15.0),
               LogoDisplayer(),
             ],
