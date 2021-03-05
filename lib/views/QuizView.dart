@@ -530,7 +530,8 @@ class QuizComponent extends StatelessWidget {
           ? Container(
               height: MediaQuery.of(context).size.height / 8,
               decoration: BoxDecoration(
-                color: parent.questions[parent.index + parent.nbrOfQuestionSkipped + 1].difficulty.color,
+                color: parent.index + parent.nbrOfQuestionSkipped < parent.questions.length - 1 ? parent.questions[parent.index + parent.nbrOfQuestionSkipped + 1].difficulty.color
+                : Colors.green,
               ),
               child: Center(
                   child: FittedBox(
@@ -538,11 +539,15 @@ class QuizComponent extends StatelessWidget {
                       child: Column(
                         children: [
                           Text(
-                              "Question suivante : ${parent.questions[parent.index + parent.nbrOfQuestionSkipped + 1].questionName}",
+                              parent.index + parent.nbrOfQuestionSkipped < parent.questions.length - 1 ?
+                              "Question suivante : ${parent.questions[parent.index + parent.nbrOfQuestionSkipped + 1].questionName}"
+                              : "Fin du quizz",
                               style: TextStyle(
                                   fontSize: 120, fontWeight: FontWeight.bold)),
                           Text(
-                              "Difficulté : ${parent.questions[parent.index + parent.nbrOfQuestionSkipped + 1].difficulty.name}",
+                              parent.index + parent.nbrOfQuestionSkipped < parent.questions.length - 1 ?
+                              "Difficulté : ${parent.questions[parent.index + parent.nbrOfQuestionSkipped + 1].difficulty.name}"
+                              : "Fin du quizz",
                               style: TextStyle(
                                   fontSize: 120, fontWeight: FontWeight.bold)),
                           FlatButton(
