@@ -102,18 +102,21 @@ class QuestionChanger extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      color: hasBeenSkipped ? Colors.grey : question.difficulty.color,
       child: Column(
         children: [
           Center(
             child: Text(question.questionName)
           ),
+          hasBeenSkipped ?
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Text("Aides : ${statOfGame.nbrOfDeletedAnswers[index]}"),
               Text("Erreurs : ${statOfGame.nbrOfWrongAnswers[index]}")
             ],
-          ),
+          ) :
+          Center( child: Text("Cette question a été sautée..."),),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

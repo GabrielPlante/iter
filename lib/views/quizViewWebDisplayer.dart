@@ -65,13 +65,17 @@ class _QuizViewWebDisplayerState extends State<QuizViewWebDisplayer> {
 
             DocumentSnapshot document = documentSnapshot.data;
             List updateDatas = databaseService.updateGameAndStat(document);
-            List<String> previousQuestionOrder = currentGame.questionsOrder;
+
+            String nextQuestionId;
+            int currentIndex = currentGame.indexOfQuestion;
+            if(currentGame.indexOfQuestion + 1 < currentGame.questionsOrder.length) nextQuestionId = currentGame.questionsOrder[currentGame.indexOfQuestion+1];
+
             currentGame = updateDatas[0];
             gameStats = updateDatas[1];
 
-            if(currentGame.indexOfQuestion >= questions.length) endQuizForWeb();
+
             if(currentGame.getQuestionHelp) handlerHelpDisplayer();
-            if(previousQuestionOrder != currentGame.questionsOrder) handlerNextQuestion();
+            if(currentGame.indexOfQuestion == currentIndex && nextQuestionId != null && nextQuestionId != currentGame.questionsOrder[currentGame.indexOfQuestion + 1]) handlerNextQuestion();
 
             if(currentGame.indexOfQuestion >= widget.quiz.questions.length) return WebEndQuiz();
             else return BodyQuizViewDisplayer(quiz: widget.quiz, questions: questions, currentGame: currentGame, players: widget.players);
@@ -81,16 +85,6 @@ class _QuizViewWebDisplayerState extends State<QuizViewWebDisplayer> {
           :
       LoadingScreen(),
     );
-  }
-
-  void endQuizForWeb() {
-    WidgetsBinding.instance.addPostFrameCallback((_){
-      Navigator.of(context).pop();
-      Navigator.push(
-          context,
-          MaterialPageRoute( builder: (context) => WebEndQuiz(currentGame: currentGame) )
-      );
-    });
   }
 
   handlerHelpDisplayer() {
